@@ -1,0 +1,3133 @@
+:root {
+    /* Color Palette (dark theme - default) */
+    --bg-dark: #0B0F17;
+    --bg-surface: #1A2235;
+    --bg-surface-hover: #232d46;
+    --primary-teal: #2DD4BF;
+    --primary-teal-hover: #1ebba6;
+    --secondary-blue: #3b82f6;
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --income-green: #10B981;
+    --expense-red: #EF4444;
+    --frozen-blue: #7dd3fc;
+    --warning-amber: #f59e0b;
+    --border-color: rgba(255, 255, 255, 0.08);
+
+    /* The AI avatar's gradient (below) needs to stay vivid in both themes -
+       unlike --primary-teal, which gets darkened for the light theme so it
+       stays readable as text/borders on white. Kept out of the light-theme
+       override block on purpose: same value in both themes. */
+    --avatar-gradient-start: #2DD4BF;
+    --avatar-gradient-end: #3b82f6;
+
+    /* Text color for the handful of buttons/bubbles filled solid with
+       --primary-teal (Generează card virtual, the send button, the user's
+       own chat bubble, the active onboarding tab). Black reads fine on the
+       vivid mint teal above, but --primary-teal darkens quite a bit for the
+       light theme (contrast as *text* on white, see below) and black on
+       that darker teal looks muddy - white is the better pairing there. */
+    --on-teal-text: #000;
+
+    /* Neutral tint used for subtle fills/hovers on top of a surface (a
+       fraction of --text-main, in effect). Flipped to a dark tint in the
+       light theme below so hover/fill states stay visible on white. */
+    --overlay-02: rgba(255, 255, 255, 0.02);
+    --overlay-03: rgba(255, 255, 255, 0.03);
+    --overlay-04: rgba(255, 255, 255, 0.04);
+    --overlay-05: rgba(255, 255, 255, 0.05);
+    --overlay-06: rgba(255, 255, 255, 0.06);
+    --overlay-08: rgba(255, 255, 255, 0.08);
+    --overlay-1: rgba(255, 255, 255, 0.1);
+    --overlay-2: rgba(255, 255, 255, 0.2);
+    --overlay-5: rgba(255, 255, 255, 0.5);
+
+    /* Translucent variants of --bg-dark/--bg-surface, for glass-effect
+       panels layered over backdrop-filter: blur(). Kept as separate
+       properties (rather than computed from the opaque ones) since CSS
+       can't derive an rgba() from a hex custom property. */
+    --header-bg: rgba(11, 15, 23, 0.8);
+    --surface-translucent: rgba(26, 34, 53, 0.95);
+
+    /* Spacing & Layout */
+    --border-radius: 16px;
+    --border-radius-sm: 8px;
+    --sidebar-width: 260px;
+    --header-height: 70px;
+    --transition: all 0.3s ease;
+}
+
+/* --- Light theme ---
+   Applied by setting data-theme="light" on <html> (see theme.js). Every
+   color above is a custom property, so this block is the only place the
+   light palette needs to live - the rest of the stylesheet just reacts. */
+[data-theme="light"] {
+    --bg-dark: #F1F5F9;
+    --bg-surface: #FFFFFF;
+    --bg-surface-hover: #EEF2F6;
+    /* Darker than the dark-theme teal/blue/green/red so text set in these
+       colors (transaction amounts, links, status labels - not just fills)
+       stays readable on a white background. */
+    --primary-teal: #0F766E;
+    --primary-teal-hover: #0D9488;
+    --secondary-blue: #2563EB;
+    --text-main: #0F172A;
+    --text-muted: #55647A;
+    --income-green: #059669;
+    --expense-red: #DC2626;
+    --frozen-blue: #0369A1;
+    --warning-amber: #B45309;
+    --border-color: #E2E8F0;
+
+    --overlay-02: rgba(15, 23, 42, 0.02);
+    --overlay-03: rgba(15, 23, 42, 0.03);
+    --overlay-04: rgba(15, 23, 42, 0.04);
+    --overlay-05: rgba(15, 23, 42, 0.05);
+    --overlay-06: rgba(15, 23, 42, 0.06);
+    --overlay-08: rgba(15, 23, 42, 0.08);
+    --overlay-1: rgba(15, 23, 42, 0.1);
+    --overlay-2: rgba(15, 23, 42, 0.2);
+    --overlay-5: rgba(15, 23, 42, 0.5);
+
+    --header-bg: rgba(241, 245, 249, 0.8);
+    --surface-translucent: rgba(255, 255, 255, 0.95);
+
+    --on-teal-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    overflow: hidden; /* Prevent body scroll, handle inside main */
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-dark);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.logo-mark {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logo-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.logo-name {
+    color: var(--text-main);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.logo-bank {
+    color: #289da4;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    margin-top: 3px;
+}
+
+.logo-tagline {
+    color: #289da4;
+    font-size: 8px;
+    font-weight: 600;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+.sidebar .logo {
+    align-self: center;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.conversation-history {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.conversation-history[hidden] {
+    display: none;
+}
+
+.conversation-history-header {
+    padding: 0 8px 10px;
+}
+
+.conversation-history-header h2 {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.conversation-history-list {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    scrollbar-color: var(--bg-surface-hover) transparent;
+    scrollbar-width: thin;
+}
+
+.conversation-history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.conversation-history-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.conversation-history-list::-webkit-scrollbar-thumb {
+    background-color: var(--bg-surface-hover);
+    border: 1px solid var(--bg-dark);
+    border-radius: 6px;
+}
+
+.conversation-history-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: var(--border-radius-sm);
+}
+
+.conversation-history-item:hover,
+.conversation-history-item:focus-within {
+    background-color: var(--overlay-03);
+}
+
+.conversation-history-item.active {
+    background-color: rgba(45, 212, 191, 0.1);
+}
+
+.conversation-history-select {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    padding: 9px 4px 9px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    overflow: hidden;
+    text-align: left;
+}
+
+.conversation-history-preview {
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conversation-history-time {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.conversation-history-actions {
+    display: flex;
+    gap: 3px;
+    padding-right: 2px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.conversation-history-item:hover .conversation-history-actions,
+.conversation-history-item:focus-within .conversation-history-actions,
+.conversation-history-item.active .conversation-history-actions {
+    opacity: 1;
+}
+
+.conversation-history-action {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.conversation-history-action:hover {
+    background-color: var(--overlay-08);
+    color: var(--text-main);
+}
+
+.conversation-history-action i {
+    width: 11px;
+    height: 11px;
+}
+
+.conversation-history-rename-input {
+    /* A direct sibling of .conversation-history-select now, not nested
+       inside it (see beginConversationRename in app.js) - flex: 1 replaces
+       the flex:1 that button would otherwise have contributed, so the
+       input still fills the row the same way. */
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--primary-teal);
+    border-radius: 4px;
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    font-size: 12px;
+    outline: none;
+    padding: 6px 8px;
+}
+
+.conversation-history-empty,
+.conversation-history-error {
+    padding: 10px 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.conversation-history-error {
+    color: var(--expense-red);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+    text-align: left;
+}
+
+.nav-item:hover {
+    color: var(--text-main);
+    background-color: var(--overlay-03);
+}
+
+.nav-item.active {
+    color: var(--primary-teal);
+    background-color: rgba(45, 212, 191, 0.1);
+}
+
+.nav-item .icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Header */
+.top-header {
+    height: var(--header-height);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    background-color: var(--header-bg);
+    backdrop-filter: blur(10px);
+    /* backdrop-filter creates its own stacking context, which otherwise traps
+       the profile-panel dropdown's z-index below .views-container's content
+       (e.g. the balance card) regardless of that dropdown's own z-index -
+       lifting the whole header above it here is what actually fixes that. */
+    position: relative;
+    z-index: 200;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-surface);
+    padding: 10px 16px;
+    border-radius: 24px;
+    width: 320px;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.search-bar .icon {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    stroke-width: 2;
+}
+
+.search-bar:focus-within {
+    border-color: var(--primary-teal);
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    margin-left: 10px;
+    width: 100%;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-muted);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* --- Profile menu: auto-hide dropdown opened from the header name/avatar --- */
+.profile-panel {
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+    width: 260px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    padding: 12px;
+    z-index: 150;
+}
+
+.profile-panel[hidden] { display: none; }
+
+.profile-panel-header {
+    padding: 8px 12px 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+.profile-panel-name { font-size: 15px; font-weight: 600; }
+.profile-panel-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.profile-menu-item:hover { background-color: var(--overlay-06); }
+
+.profile-menu-item .icon { width: 18px; height: 18px; color: var(--text-muted); stroke-width: 2; }
+
+/* --- Notifications dropdown: anchored under the bell (left of .user-actions,
+   unlike the profile menu which anchors right under the name/avatar) --- */
+.notifications-panel {
+    left: 0;
+    right: auto;
+    width: 340px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    padding: 0;
+}
+
+.notifications-panel .profile-panel-header { padding: 14px 16px; margin-bottom: 0; }
+
+#notifications-list { padding: 8px; }
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+}
+
+.notification-item.unread { background-color: rgba(45, 212, 191, 0.06); }
+
+.notification-item .notification-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-teal);
+    margin-top: 6px;
+}
+
+.notification-item.unread .notification-dot { visibility: visible; }
+.notification-item:not(.unread) .notification-dot { visibility: hidden; }
+
+.notification-item .notification-title { font-size: 14px; font-weight: 600; }
+.notification-item .notification-body { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.notification-item .notification-time { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* --- Standalone cards: destinations reached only via the profile menu --- */
+.standalone-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 40px;
+    max-width: 480px;
+    /* Stays visible above #face-flashlight-overlay (z-index 90) while its
+       camera is active - see the flashlight comment near .modal-overlay. */
+    position: relative;
+    z-index: 91;
+}
+
+.standalone-card.centered { text-align: center; }
+
+/* --- Face login camera (enrollment view + login.html) --- */
+.face-camera-wrap {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+}
+
+.face-camera-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1); /* mirror, like a real camera preview */
+}
+
+.notification-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification-btn .icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+/* Numbered pill, not a plain dot: shows the actual unread count so "seen"
+   (see notification-item.unread below) has a number to count down from,
+   not just a presence/absence signal. Caps its own display text at "9+"
+   in JS (see refreshNotificationsBadge) - width stays a circle up to two
+   digits, then grows into a pill for "9+" without ever clipping. */
+.notification-btn .badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background-color: var(--primary-teal);
+    color: var(--bg-dark);
+    border: 2px solid var(--bg-surface);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 12px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.avatar.avatar-emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: linear-gradient(135deg, var(--primary-teal) 0%, #0d9488 100%);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-profile span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Views Container */
+.views-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+}
+
+.view {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Profile view (avatar picker) --- */
+.profile-avatar-preview {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-teal) 0%, #0d9488 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin: 0 auto 16px;
+}
+
+.profile-subtitle {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.emoji-option {
+    font-size: 24px;
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    background-color: var(--overlay-03);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.emoji-option:hover {
+    background-color: var(--overlay-08);
+}
+
+.emoji-option.selected {
+    border-color: var(--primary-teal);
+    background-color: rgba(45, 212, 191, 0.15);
+}
+
+/* Common Components */
+.btn {
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+}
+
+/* display:inline-flex above beats the browser's default [hidden] rule at
+   equal specificity (author stylesheet wins ties) - without this, a
+   hidden .btn (e.g. face-capture buttons toggled by JS) stays visible. */
+.btn[hidden] {
+    display: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-teal) 0%, #0d9488 100%);
+    color: var(--on-teal-text);
+    box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4);
+}
+
+.btn-secondary {
+    background-color: var(--overlay-05);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--overlay-1);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-main);
+}
+
+.view-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* --- View 1: Dashboard --- */
+.dashboard-header {
+    margin-bottom: 40px;
+}
+
+.total-balance-card {
+    background-color: var(--bg-surface);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.total-balance-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(45,212,191,0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.total-balance-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.label {
+    color: var(--text-muted);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.balance {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 10px 0 24px 0;
+}
+
+.balance .minor {
+    color: var(--text-muted);
+    font-size: 24px;
+}
+
+.total-balance-card .actions {
+    display: flex;
+    gap: 16px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.account-card {
+    position: relative;
+    background-color: var(--bg-surface);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.acc-statement-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 6px;
+}
+.acc-statement-btn:hover { color: var(--primary-teal); background-color: var(--overlay-06); }
+.acc-statement-btn svg { width: 18px; height: 18px; }
+
+.account-card:hover {
+    background-color: var(--bg-surface-hover);
+    transform: translateY(-3px);
+}
+
+.acc-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+    background-color: var(--overlay-05);
+}
+
+.acc-info h3 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.acc-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.acc-balance {
+    margin-top: 16px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Count-up/down feedback for balance figures (see animateBalance in app.js):
+   a brief green/red tint while the number is ticking toward its new value,
+   fading back to the normal text color once the animation finishes. */
+.acc-balance, .balance, .pot-amounts {
+    transition: color 0.4s ease;
+}
+.balance-flash-up { color: var(--income-green); }
+.balance-flash-down { color: var(--expense-red); }
+
+.transactions-list {
+    background-color: var(--bg-surface);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.tx-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background-color: var(--overlay-05);
+    margin-right: 16px;
+}
+
+.tx-details {
+    flex: 1;
+}
+
+.tx-details h4 {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.tx-details .time {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+}
+
+.tx-amount {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.tx-amount.positive { color: var(--income-green); }
+.tx-amount.negative { color: var(--text-main); } /* Revolut usually keeps it white/black for expense */
+
+/* --- View: All Transactions (grouped by month) --- */
+.section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.section-header-row .section-title { margin-bottom: 0; }
+
+.link-btn {
+    background: none;
+    border: none;
+    color: var(--primary-teal);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.link-btn:hover { text-decoration: underline; }
+
+.month-group { margin-bottom: 30px; }
+
+.month-header {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+/* --- View 2: AI Chat --- */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--header-height) - 80px);
+    background-color: var(--bg-surface);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-translucent);
+}
+
+.chat-header .ai-avatar {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--avatar-gradient-start), var(--avatar-gradient-end));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 16px;
+    /* Always a saturated teal/blue fill regardless of theme, so the icon
+       needs to stay a fixed light color for contrast rather than following
+       --text-main (which turns dark navy in the light theme and would go
+       muddy against the teal end of the gradient). */
+    color: #fff;
+}
+
+.ai-info h2 { font-size: 18px; }
+.ai-info .status { font-size: 12px; color: var(--primary-teal); }
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    max-width: 80%;
+}
+
+.message.ai { align-self: flex-start; }
+.message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+.message .avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--avatar-gradient-start), var(--avatar-gradient-end));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-right: 12px;
+    color: #fff;
+}
+.message.user .avatar { margin-right: 0; margin-left: 12px; }
+
+/* Column wrapper (see app.js appendChatBubble) so the agent tag stacks above
+   the bubble instead of sitting beside it in .message's flex row. */
+.message-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.agent-tag {
+    position: relative;
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin-bottom: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--overlay-05);
+    cursor: help;
+}
+
+/* Custom tooltip (replaces the OS-styled `title` attribute tooltip) - same
+   dark-surface convention as .spending-donut-tooltip. Below the tag since
+   the tag sits at the top of an AI bubble, so there's rarely room above it. */
+.agent-tag-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 240px;
+    max-width: 320px;
+    padding: 8px 10px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--bg-surface-hover);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-main);
+    white-space: normal;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+/* A multi-agent turn (Step 15 cross-agent handoff): "-> Analiza -> Bancar".
+   Slightly less faded than a single-agent tag - a turn that changed hands is
+   worth noticing, where the ordinary one-agent tag is background metadata. */
+.agent-tag-chain {
+    opacity: 0.85;
+}
+
+.agent-tag-tooltip div + div {
+    margin-top: 2px;
+}
+
+/* Per-hop heading inside a chain tooltip, so three "Motiv:" rows in a row
+   still say which agent each belongs to. */
+.agent-tag-tooltip-hop {
+    margin-top: 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.agent-tag-tooltip-hop:first-child {
+    margin-top: 0;
+}
+
+.agent-tag-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 12px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--bg-dark);
+    border-left: 1px solid var(--bg-surface-hover);
+    border-top: 1px solid var(--bg-surface-hover);
+    transform: rotate(45deg);
+}
+
+.agent-tag:hover .agent-tag-tooltip,
+.agent-tag:focus-visible .agent-tag-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.message .bubble {
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.message.ai .bubble {
+    background-color: var(--overlay-05);
+    border-bottom-left-radius: 4px;
+}
+
+.message.user .bubble {
+    background-color: var(--primary-teal);
+    color: var(--on-teal-text);
+    border-bottom-right-radius: 4px;
+}
+
+/* Copy and read-aloud controls, appended under every real AI reply (see
+   appendChatBubble in app.js - skipped for the transient typing bubble).
+   align-self keeps the row a compact left-anchored control rather than
+   stretching full-width like .message-content's other flex children. */
+.message-actions {
+    display: flex;
+    align-self: flex-start;
+    gap: 2px;
+    margin-top: 6px;
+}
+
+.message-copy-btn,
+.message-speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.message-copy-btn:hover,
+.message-copy-btn:focus-visible,
+.message-speak-btn:hover,
+.message-speak-btn:focus-visible {
+    color: var(--text-main);
+    background-color: var(--overlay-06);
+    outline: none;
+}
+
+.message-copy-btn .icon,
+.message-speak-btn .icon {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2;
+}
+
+/* Quick, subtle confirmation: the icon swaps to a checkmark and tints
+   income-green for a moment (see the setTimeout in app.js), then both
+   revert - no layout shift, no popup. */
+.message-copy-btn.is-copied {
+    color: var(--income-green);
+}
+
+/* Stays teal - not a brief pulse like .is-copied above - for as long as the
+   message is actually playing, since unlike the copy confirmation this
+   reflects real, possibly multi-second, ongoing state (see the stop-glyph
+   swap and stopMessageSpeech in app.js). */
+.message-speak-btn.is-speaking {
+    color: var(--primary-teal);
+}
+
+/* Assistant is thinking: same bubble, a quiet label over three pulsing dots. */
+.typing-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.typing-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.typing-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--text-muted);
+    animation: typing-pulse 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-pulse {
+    0%, 60%, 100% { opacity: 0.3; }
+    30% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .typing-dot { animation: none; opacity: 0.6; }
+}
+
+/* A failed request reads as an assistant turn, but visibly not a real answer. */
+.message.ai .bubble.error {
+    background-color: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: var(--text-main);
+}
+
+/* Projection Widget inside AI chat */
+.projection-widget {
+    margin-top: 16px;
+    background-color: rgba(0,0,0,0.2);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(45,212,191,0.2);
+}
+
+.chart-placeholder { margin-bottom: 12px; }
+.progress-bar-bg {
+    height: 8px;
+    background-color: var(--overlay-1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--primary-teal);
+    border-radius: 4px;
+}
+.projection-text { font-size: 13px; color: var(--text-main); }
+
+/* Human-in-the-loop card */
+.human-in-the-loop-card {
+    margin-top: 16px;
+    background: linear-gradient(145deg, rgba(45,212,191,0.1) 0%, rgba(0,0,0,0.2) 100%);
+    border: 1px solid var(--primary-teal);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.action-proposal strong {
+    color: var(--primary-teal);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.proposal-field {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--overlay-06);
+}
+.proposal-field span:first-child { color: var(--text-muted); }
+.proposal-field span:last-child { font-weight: 500; text-align: right; }
+
+.proposal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+.proposal-actions .btn { flex: 1; justify-content: center; padding: 8px 16px; font-size: 13px; }
+
+.proposal-confirmed {
+    color: var(--income-green);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.proposal-confirmed .icon { width: 18px; height: 18px; }
+
+.proposal-cancelled {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.action-proposal p { font-size: 14px; margin-bottom: 16px; }
+
+.hitl-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.chat-input-area {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+}
+
+.chat-input {
+    flex: 1;
+    background-color: var(--overlay-05);
+    border: 1px solid var(--border-color);
+    padding: 14px 20px;
+    border-radius: 24px;
+    color: var(--text-main);
+    outline: none;
+}
+.chat-input:focus { border-color: var(--primary-teal); }
+
+.btn-send {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--primary-teal);
+    color: var(--on-teal-text);
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+.btn-send:hover { transform: scale(1.05); }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* --- View 3: Cards Management --- */
+.cards-carousel {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+/* Unlike most components, this card doesn't just re-theme its existing
+   colors - it gets a genuinely different look per theme (dark gradient vs.
+   a light pastel one below), so its children (card number, labels, status
+   badge, the limit/cancel buttons) can keep reading the page's ordinary
+   --text-main/--text-muted/accent variables and stay well-contrasted
+   without any card-specific overrides: those variables are already tuned
+   for whichever background - dark or light - the active theme puts here. */
+.credit-card {
+    min-width: 340px;
+    height: 210px;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    color: var(--text-main);
+}
+
+.credit-card.virtual {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--primary-teal);
+}
+
+.credit-card.virtual::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: radial-gradient(circle at top right, rgba(45,212,191,0.2) 0%, transparent 60%);
+}
+
+.credit-card.physical {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Light theme: a real card here would still be dark in real life (like the
+   language-selector trigger, this one keeps its own identity rather than
+   inverting to look like a form field), but a flat reuse of the dark
+   gradient reads as a jarring black cutout on an otherwise white page. A
+   pale, glassy tint keeps the same "card" identity while sitting naturally
+   on light surfaces. */
+[data-theme="light"] .credit-card.virtual {
+    background: linear-gradient(135deg, #F0FDFA 0%, #99F6E4 100%);
+    border: 1px solid var(--primary-teal);
+}
+
+[data-theme="light"] .credit-card.virtual::after {
+    background: radial-gradient(circle at top right, rgba(13, 148, 136, 0.16) 0%, transparent 60%);
+}
+
+[data-theme="light"] .credit-card.physical {
+    background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.card-type {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.card-logo {
+    font-weight: 700;
+    font-style: italic;
+    font-size: 20px;
+}
+
+.card-number {
+    font-size: 22px;
+    letter-spacing: 2px;
+    font-family: monospace;
+    position: relative;
+    z-index: 1;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+    z-index: 1;
+}
+
+.card-details {
+    display: flex;
+    gap: 20px;
+}
+
+.detail { display: flex; flex-direction: column; }
+.detail .label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.detail span { font-size: 14px; }
+
+.card-secret {
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+/* Reused far beyond the credit-card eye toggle it's named after - also the
+   chat attach/mic buttons and the copy-IBAN/referral buttons, all sitting on
+   a regular (theme-aware) surface, so its fill uses the overlay vars here. */
+.card-eye-btn {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--overlay-08);
+    border: 1px solid var(--overlay-2);
+    color: var(--text-muted);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.card-eye-btn:hover {
+    color: var(--text-main);
+    border-color: var(--overlay-5);
+}
+
+.chat-mic-btn {
+    align-self: center;
+    width: 40px;
+    height: 40px;
+}
+
+.chat-mic-btn.listening {
+    color: #fff;
+    background: var(--expense-red);
+    border-color: var(--expense-red);
+    animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+.card-eye-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+/* --- Password show/hide toggle (register, login, forgot/change password) --- */
+.password-field-wrapper { position: relative; }
+
+.password-field-wrapper .field-input { padding-right: 44px; }
+
+.password-toggle-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-main);
+    background: var(--overlay-08);
+}
+
+.password-toggle-btn i {
+    width: 16px;
+    height: 16px;
+}
+
+.cards-actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.card-limits {
+    background-color: var(--bg-surface);
+    padding: 24px;
+    border-radius: var(--border-radius);
+    max-width: 500px;
+}
+
+.card-limits h3 {
+    font-size: 15px;
+    margin-bottom: 16px;
+}
+
+.limit-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+}
+
+.progress-bg {
+    height: 10px;
+    background-color: var(--overlay-05);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--primary-teal);
+    border-radius: 5px;
+}
+.progress-fill.teal { background-color: var(--primary-teal); }
+.progress-fill.blue { background-color: var(--secondary-blue); }
+.progress-fill.green { background-color: var(--income-green); }
+
+/* --- View 4: Analytics --- */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 30px;
+}
+
+.chart-card, .pots-card {
+    background-color: var(--bg-surface);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.chart-card h3, .pots-card h3 {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.donut-chart-container {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+
+.spending-donut-wrap {
+    position: relative;
+    width: 230px;
+    height: 230px;
+    flex-shrink: 0;
+}
+
+.spending-donut {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* The invisible hit target: stays at rest (--rot only, no hover translate/
+   scale) so hovering it can never move it out from under the pointer - see
+   buildSpendingDonutSegments's docstring for why this has to be a separate
+   element from the animated, visible fill circle below. */
+.spending-segment-hit {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: rotate(var(--rot));
+    pointer-events: stroke;
+    cursor: pointer;
+}
+
+/* Positioning + the mount animation + the hover pop-out are ALL one
+   `transform` chain, driven purely by custom properties so every state
+   change (mount, hover) is just a var() override the browser can transition
+   smoothly - see buildSpendingDonutSegments for why translate/rotate/scale
+   live together here instead of split across a parent <g>'s SVG attribute.
+   pointer-events: none because this is the element that moves on hover -
+   the sibling .spending-segment-hit above is what's actually hit-tested. */
+.spending-segment-fill {
+    transform-box: fill-box;
+    transform-origin: center;
+    --hx: 0px;
+    --hy: 0px;
+    --scale: 0.55;
+    transform: translate(var(--hx), var(--hy)) rotate(var(--rot)) scale(var(--scale));
+    opacity: 0;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+    transition: filter 0.2s ease;
+    pointer-events: none;
+}
+
+/* Mount phase only: the staggered (--seg-delay) grow-in. Swapped for
+   .is-mounted's fast, undelayed transition once the entrance finishes (see
+   renderSpendingDonut) so hovering a later slice never inherits its mount
+   delay and feels laggy to respond. */
+.spending-donut-wrap.is-mounting .spending-segment-fill {
+    --scale: 1;
+    opacity: 1;
+    transition:
+        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) var(--seg-delay, 0ms),
+        opacity 0.4s ease var(--seg-delay, 0ms),
+        filter 0.2s ease;
+}
+
+.spending-donut-wrap.is-mounted .spending-segment-fill {
+    --scale: 1;
+    opacity: 1;
+    transition:
+        transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.2s ease,
+        filter 0.2s ease;
+}
+
+/* Hover/focus "pop": the slice pushes outward along its own radius (--hx-
+   active/--hy-active, precomputed per slice) and brightens; every other
+   slice dims so a colorblind user can confirm "this slice = this category"
+   by highlight and position, never by matching hues alone (see
+   wireSpendingCategoryHover). */
+.spending-donut.has-active .spending-segment:not(.is-active) .spending-segment-fill {
+    opacity: 0.28;
+}
+
+.spending-segment.is-active .spending-segment-fill {
+    --hx: var(--hx-active);
+    --hy: var(--hy-active);
+    --scale: 1.05;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)) brightness(1.12);
+}
+
+.spending-segment:focus-visible .spending-segment-fill {
+    outline: 2px solid var(--text-main);
+    outline-offset: 2px;
+}
+
+.spending-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.spending-donut-total-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.spending-donut-total-value {
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.spending-donut-tooltip {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 6px 10px;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--bg-dark);
+    border: 1px solid var(--bg-surface-hover);
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.spending-donut-tooltip-value { font-size: 15px; font-weight: 700; color: var(--text-main); }
+.spending-donut-tooltip-label { font-size: 12px; color: var(--text-muted); }
+.spending-donut-tooltip[hidden] { display: none; }
+
+.legend { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    padding: 8px 10px;
+    margin: 0 -10px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+.legend-item.is-active { background-color: var(--bg-surface-hover); }
+.legend.has-active .legend-item:not(.is-active) { opacity: 0.45; }
+.legend-item:focus-visible { outline: 2px solid var(--text-main); outline-offset: -2px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 14px; flex-shrink: 0; }
+
+.pots-list { display: flex; flex-direction: column; gap: 24px; }
+
+.pot-item .pot-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.pot-icon { font-size: 20px; margin-right: 12px; }
+.pot-name { font-weight: 500; flex: 1; }
+.pot-amounts { font-size: 13px; color: var(--text-muted); }
+
+/* --- Savings / term-deposit accounts (Investiții & Bugetare) --- */
+.savings-product-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.savings-product-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    background-color: var(--overlay-03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 16px;
+    color: var(--text-main);
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+}
+
+.savings-product-btn:hover {
+    border-color: var(--primary-teal);
+    background-color: rgba(45, 212, 191, 0.06);
+}
+
+.savings-product-btn .icon {
+    width: 22px;
+    height: 22px;
+    color: var(--primary-teal);
+    stroke-width: 1.75;
+    margin-bottom: 4px;
+}
+
+.savings-product-btn-title { font-weight: 600; font-size: 14px; }
+.savings-product-btn-rate { color: var(--primary-teal); font-weight: 600; font-size: 15px; }
+.savings-product-btn-desc { color: var(--text-muted); font-size: 12px; }
+
+.savings-account-item .pot-header { margin-bottom: 6px; }
+.savings-account-maturity { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.savings-account-maturity.locked { color: var(--primary-teal); }
+
+.savings-projection-box {
+    background-color: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.25);
+    border-radius: var(--border-radius-sm);
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+.savings-projection-box .projection-total {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-teal);
+    margin-top: 4px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .dashboard-grid, .analytics-grid { grid-template-columns: 1fr; }
+}
+
+/* --- Auth pages (login.html / register.html) --- */
+.auth-body {
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Machine-translation control. On auth screens it is fixed; the dashboard
+   places the same component naturally in the header action row. */
+.language-selector {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.language-selector-trigger {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    background: var(--bg-surface);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 14px rgba(0, 0, 0, 0.18);
+    color: var(--text-main);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.language-selector-icon {
+    color: var(--primary-teal);
+    font-size: 19px;
+    line-height: 1;
+}
+
+.language-selector-current { white-space: nowrap; }
+
+.language-selector-chevron {
+    width: 7px;
+    height: 7px;
+    margin-left: 2px;
+    border-right: 1.5px solid var(--text-muted);
+    border-bottom: 1.5px solid var(--text-muted);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 160ms ease;
+}
+
+.language-selector-trigger[aria-expanded="true"] .language-selector-chevron {
+    transform: translateY(2px) rotate(225deg);
+}
+
+.language-selector-trigger:hover,
+.language-selector-trigger:focus-visible {
+    border-color: rgba(45, 212, 191, 0.72);
+    background: var(--bg-surface-hover);
+    outline: none;
+}
+
+.language-selector-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 500;
+    width: 178px;
+    padding: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    background: var(--bg-surface);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
+}
+
+.language-selector-menu[hidden] { display: none; }
+
+.language-selector-option {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 9px;
+    padding: 10px 11px;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.language-selector-option:hover,
+.language-selector-option:focus-visible,
+.language-selector-option[aria-selected="true"] {
+    background: rgba(45, 212, 191, 0.13);
+    color: var(--primary-teal);
+    outline: none;
+}
+
+.auth-body .language-selector {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 1000;
+}
+
+/* Dark/light switch injected by theme.js - see the file for why it lives
+   there rather than in markup (mirrors how language.js self-injects the
+   selector above). Styled like the icon buttons in .user-actions on the
+   dashboard/admin header, fixed top-left on the auth pages (which have no
+   header) so it never collides with the language selector's own fixed
+   position on the right. */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus-visible {
+    color: var(--text-main);
+    background-color: var(--overlay-06);
+    border-color: var(--primary-teal);
+    outline: none;
+}
+
+.theme-toggle-btn svg { display: block; }
+
+.auth-body .theme-toggle-btn {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    z-index: 1000;
+    background: var(--bg-surface);
+}
+
+/* Returning visitors never see the old language before their cached bundle
+   is applied. Romanian is the source language and remains visible. */
+html.i18n-pending body { visibility: hidden; }
+
+/* Returning visitors never see the old language before their cached bundle
+   is applied. Romanian is the source language and stays visible. */
+html.i18n-pending body { visibility: hidden; }
+
+@media (max-width: 640px) {
+    .auth-body .language-selector { top: 12px; right: 12px; }
+    .auth-body .theme-toggle-btn { top: 12px; left: 12px; }
+    .top-header { padding: 0 16px; }
+    .search-bar { width: min(220px, 38vw); }
+    .user-actions { gap: 8px; }
+    .user-profile span { display: none; }
+}
+
+.auth-page {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 36px;
+    /* Stays visible above #face-flashlight-overlay (z-index 90) while its
+       camera is active - see the flashlight comment near .modal-overlay. */
+    position: relative;
+    z-index: 91;
+}
+
+.auth-card-wide { max-width: 480px; }
+.auth-card-comodul-active { max-width: 640px; }
+
+.onboarding-mode-switch {
+    display: flex;
+    gap: 8px;
+    background-color: var(--overlay-03);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 24px;
+}
+
+.mode-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mode-tab:hover { color: var(--text-main); }
+
+.mode-tab.active {
+    background-color: var(--primary-teal);
+    color: var(--on-teal-text);
+}
+
+.comodul-chat-container { height: 480px; }
+
+.comodul-upload-box { padding: 0 20px; margin-bottom: 16px; }
+
+.auth-card .logo {
+    margin-bottom: 12px;
+}
+
+.auth-card .logo-mark {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+}
+
+.auth-subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.auth-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--expense-red);
+    color: var(--expense-red);
+    border-radius: var(--border-radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.auth-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--income-green);
+    color: var(--income-green);
+    border-radius: var(--border-radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.iban-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.iban-input-row .field-input { flex: 1; }
+
+.my-iban-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--overlay-04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 20px;
+}
+
+.my-iban-box .iban-value {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+    flex: 1;
+}
+
+.contact-item, .payment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+    cursor: default;
+}
+
+.contact-item:last-child, .payment-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item { cursor: default; }
+.contact-item-fill { cursor: pointer; flex: 1; min-width: 0; }
+.contact-item-fill:hover { color: var(--primary-teal); }
+
+.contact-item .name, .payment-item .name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.contact-item .iban, .payment-item .meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.contact-subscription-badge {
+    display: inline-block;
+    background-color: rgba(245, 158, 11, 0.12);
+    color: var(--warning-amber);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    vertical-align: middle;
+}
+
+.contact-website {
+    display: block;
+    font-size: 12px;
+    color: var(--primary-teal);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contact-website:hover {
+    text-decoration: underline;
+}
+
+.payment-item .amount {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.contact-remove-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+}
+.contact-remove-btn:hover { color: var(--expense-red); }
+.contact-remove-btn i { width: 14px; height: 14px; }
+
+.pots-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-icon-add {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--primary-teal);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.btn-icon-add:hover { border-color: var(--primary-teal); }
+.btn-icon-add i { width: 16px; height: 16px; }
+
+.inline-add-form {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+.inline-add-form .field-input { flex: 1; min-width: 120px; }
+
+.scheduled-transfer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.scheduled-transfer-item:last-child { border-bottom: none; }
+.scheduled-transfer-item .name { font-weight: 500; font-size: 14px; }
+.scheduled-transfer-item .meta { font-size: 12px; color: var(--text-muted); }
+.scheduled-transfer-error-note { color: var(--expense-red); }
+.scheduled-transfer-actions { display: flex; gap: 12px; flex-shrink: 0; }
+
+.field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    margin-top: 16px;
+}
+
+.field-label:first-child { margin-top: 0; }
+
+.field-optional { font-weight: 400; color: var(--text-muted); }
+
+.field-input {
+    width: 100%;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 11px 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--primary-teal);
+}
+
+.field-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+.field-hint.ocr-success { color: var(--income-green); }
+.field-hint.ocr-warning { color: var(--expense-red); }
+
+#chat-attach-status {
+    margin: -10px 20px 12px;
+}
+
+#document-attach-status {
+    margin: -10px 20px 12px;
+}
+
+.document-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 20px 0;
+    padding: 6px 10px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--primary-teal);
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    color: var(--text-muted);
+    width: fit-content;
+}
+
+/* display:inline-flex above beats the browser's default [hidden] rule at
+   equal specificity (author stylesheet wins ties, see the same note on
+   .btn) - without this, the chip stays visible (as an empty box) even
+   when no document is attached. */
+.document-chip[hidden] {
+    display: none;
+}
+
+.document-chip-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+}
+.document-chip-close:hover { color: var(--expense-red); }
+
+.documents-to-sign-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.document-to-sign-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+}
+
+.document-to-sign-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.document-to-sign-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--income-green);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.ocr-upload-box { margin-bottom: 20px; }
+
+.file-dropzone {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--overlay-02);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.file-dropzone:hover,
+.file-dropzone:focus-visible {
+    border-color: var(--primary-teal);
+    background-color: rgba(45, 212, 191, 0.06);
+    outline: none;
+}
+
+.file-dropzone.dragover {
+    border-color: var(--primary-teal);
+    background-color: rgba(45, 212, 191, 0.1);
+}
+
+.file-dropzone-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.file-dropzone-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.75;
+}
+
+.mode-tab .icon,
+.attachment-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    vertical-align: -2px;
+}
+
+.file-dropzone-text {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.file-dropzone-filename {
+    font-size: 13px;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.file-dropzone-link {
+    color: var(--primary-teal);
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.auth-submit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+.auth-switch {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 24px;
+}
+
+.auth-switch a { color: var(--primary-teal); text-decoration: none; font-weight: 500; }
+.auth-switch a:hover { text-decoration: underline; }
+
+/* --- Modals (new account / transfer) --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Must beat .top-header (200) - it sits in its own stacking context
+       (position: relative for the profile-panel dropdown fix) and would
+       otherwise paint over any modal opened from inside the dashboard,
+       most visibly with the face-confirm flashlight: the header stayed
+       dark and interactive while everything below it went white. */
+    z-index: 300;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+/* "Flashlight": while a face camera is active, most of the screen flashes
+   solid white at max device brightness, to act as a passive light source
+   for whoever's face the camera needs to see - the same trick real
+   ID-scanning apps use (see setFaceFlashlight in api.js). Sits below the
+   actual camera UI, which stays "positioned" with a higher z-index (see
+   .auth-card/.standalone-card below) so the video/controls remain visible
+   on top of the flash. */
+#face-flashlight-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #ffffff;
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+#face-flashlight-overlay.is-active { opacity: 1; }
+
+/* Modal-based camera flow (the step-up face-confirm modal): the backdrop
+   itself goes white - the .modal card is its own DOM child, so it always
+   paints on top of its own parent's background with no z-index changes
+   needed.
+
+   The card's OWN background goes white too, not just the backdrop around
+   it: .modal is capped at 420px, but on a narrow phone screen (exactly
+   where a flashlight is actually useful) that card fills nearly the whole
+   viewport, leaving almost none of the backdrop's white visible - "full
+   screen" only held on wide viewports without this. Colors below are
+   fixed, not theme tokens: the flashlight is always pure white regardless
+   of the app's light/dark theme, so its own text/buttons need their own
+   fixed dark colors to stay legible against it either way. */
+.modal-overlay.face-flashlight { background-color: #ffffff; }
+
+.modal-overlay.face-flashlight .modal {
+    background-color: #ffffff;
+    border-color: rgba(11, 15, 23, 0.12);
+    color: #0B0F17;
+}
+
+.modal-overlay.face-flashlight .modal-close { color: #0B0F17; }
+.modal-overlay.face-flashlight .modal-close:hover { color: #000000; }
+
+.modal-overlay.face-flashlight .btn-secondary {
+    background-color: rgba(11, 15, 23, 0.06);
+    color: #0B0F17;
+    border-color: rgba(11, 15, 23, 0.2);
+}
+
+.modal-overlay.face-flashlight .btn-secondary:hover {
+    background-color: rgba(11, 15, 23, 0.12);
+}
+
+.modal {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 28px;
+    margin: 20px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 { font-size: 18px; font-weight: 600; }
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+}
+
+.modal-close:hover { color: var(--text-main); }
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+/* --- Confirm dialog (window.confirm() replacement, see showConfirmDialog
+   in app.js) - same entrance-animation approach as #price-increase-modal
+   below: a plain CSS `animation` on the overlay/card that auto-replays
+   every time [hidden] is removed, no JS-driven class toggling needed.
+   Closing is instant (hidden = true), same as every other modal in this
+   app, so this dialog doesn't feel out of place next to the others. --- */
+@keyframes confirm-dialog-backdrop-in {
+    from { opacity: 0; backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+    to { opacity: 1; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+}
+
+@keyframes confirm-dialog-pop-in {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#confirm-dialog-overlay {
+    animation: confirm-dialog-backdrop-in 0.22s ease-out;
+}
+
+.confirm-dialog {
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    animation: confirm-dialog-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirm-dialog-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(239, 68, 68, 0.12);
+    color: var(--expense-red);
+}
+.confirm-dialog-icon i { width: 26px; height: 26px; }
+
+.confirm-dialog-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.confirm-dialog-message {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #confirm-dialog-overlay, .confirm-dialog { animation: none; }
+}
+
+/* --- Prompt dialog (window.prompt() replacement, see showPromptDialog in
+   app.js) - reuses the .confirm-dialog shell (same entrance animation,
+   same icon/title/message layout) with a neutral teal icon instead of the
+   danger-red one, plus a single labeled input. --- */
+.prompt-dialog-icon {
+    background-color: rgba(45, 212, 191, 0.12);
+    color: var(--primary-teal);
+}
+
+.prompt-dialog-form { margin-top: 18px; }
+
+.prompt-dialog-input-wrap { position: relative; }
+
+.prompt-dialog-input-wrap .field-input { padding-right: 52px; text-align: left; }
+
+.prompt-dialog-suffix {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.prompt-dialog-form .auth-error { margin: 12px 0 0; }
+
+/* --- Subscription price-increase block --- */
+@keyframes price-increase-pop-in {
+    0% { opacity: 0; transform: scale(0.9) translateY(12px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes price-increase-icon-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35); }
+    50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+}
+
+@keyframes price-increase-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#price-increase-modal {
+    animation: price-increase-fade-in 0.2s ease-out;
+}
+
+.price-increase-modal {
+    text-align: center;
+    animation: price-increase-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.price-increase-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning-amber);
+    animation: price-increase-icon-pulse 2s ease-out 0.35s 2;
+}
+
+.price-increase-icon i { width: 26px; height: 26px; }
+
+.price-increase-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.price-increase-message {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.price-increase-message #price-increase-merchant {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.price-increase-amounts {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.price-increase-old {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-size: 15px;
+}
+
+.price-increase-amounts .icon {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+}
+
+.price-increase-new {
+    color: var(--warning-amber);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.price-increase-blocked-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--expense-red);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+}
+
+.price-increase-website-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--primary-teal);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.price-increase-website-link:hover { text-decoration: underline; }
+.price-increase-website-link .icon { width: 14px; height: 14px; }
+.price-increase-website-link[hidden] { display: none; }
+
+/* --- Step-up auth modal (proposal confirm - see Step 11) --- */
+.step-up-option { margin-top: 16px; }
+.step-up-option:first-of-type { margin-top: 4px; }
+#step-up-face-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+.step-up-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 4px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.step-up-divider::before, .step-up-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+/* --- Proposal card states (confirmed/rejected - see renderProposalCard) --- */
+.human-in-the-loop-card.proposal-confirmed {
+    border-color: var(--income-green);
+    background: linear-gradient(145deg, rgba(16,185,129,0.12) 0%, rgba(0,0,0,0.2) 100%);
+}
+.human-in-the-loop-card.proposal-rejected {
+    border-color: var(--border-color);
+    background: var(--overlay-03);
+    opacity: 0.7;
+}
+.proposal-status-label {
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.proposal-status-label.confirmed { color: var(--income-green); }
+.proposal-status-label.rejected { color: var(--text-muted); }
+
+/* --- Toast (background feedback for proposal confirm/reject) --- */
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+.toast {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 18px;
+    border-radius: var(--border-radius-sm);
+    font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    animation: toast-in 0.2s ease-out;
+}
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Notification pop-up (new notification arriving, see
+   startNotificationStream in app.js) - distinct from the plain
+   #toast-container above: this one carries a title+body, is clickable
+   (opens the bell's history and marks THIS notification seen), and gets a
+   special money-themed flourish when the event is a payment received
+   (category === "money_received" - see notifications/schemas.py). The bell
+   dropdown itself is untouched; this is only the "something just happened"
+   moment, not the history.
+
+   A bar that drops from above the very top of the viewport, holds, then
+   retreats back up - not a card sliding in from the side - so it reads as
+   a banner announcing itself from off-screen, on top of whatever view is
+   currently showing (dashboard, chat, cards, ...: this container sits
+   outside every `.view` section, so it is never torn down by switching
+   between them). Centered rather than corner-anchored so it announces
+   itself the same way regardless of screen width. */
+#notification-popup-container {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 250;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    max-width: min(420px, calc(100vw - 32px));
+    padding-top: 12px;
+}
+
+.notification-popup {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 10px 34px 10px 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    animation: notification-drop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.notification-popup.is-leaving {
+    animation: notification-drop-out 0.25s ease-in forwards;
+}
+
+@keyframes notification-drop-in {
+    from { opacity: 0; transform: translateY(-130%); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes notification-drop-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-130%); }
+}
+
+.notification-popup-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(45, 212, 191, 0.14);
+    color: var(--primary-teal);
+}
+
+.notification-popup-icon .icon { width: 16px; height: 16px; }
+
+.notification-popup-title { font-size: 13px; font-weight: 700; color: var(--text-main); }
+.notification-popup-text { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+.notification-popup-close {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 4px;
+}
+
+/* The money variant: a green-tinted icon that bounces once, plus a few
+   coin emoji that rise and fade past the card's edge - a small celebratory
+   flourish for "you got paid", never used for any other notification. */
+.notification-popup.is-money .notification-popup-icon {
+    background-color: rgba(16, 185, 129, 0.16);
+    color: var(--income-green);
+    animation: money-icon-bounce 0.6s ease-in-out 0.15s;
+}
+
+@keyframes money-icon-bounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    35% { transform: scale(1.3) rotate(-10deg); }
+    65% { transform: scale(1.1) rotate(8deg); }
+}
+
+.money-particle {
+    position: absolute;
+    left: 16px;
+    bottom: 8px;
+    font-size: 15px;
+    opacity: 0;
+    pointer-events: none;
+    animation: money-particle-rise 1.1s ease-out forwards;
+}
+
+.money-particle:nth-of-type(2) { left: 30px; animation-delay: 0.08s; }
+.money-particle:nth-of-type(3) { left: 2px; animation-delay: 0.18s; }
+
+@keyframes money-particle-rise {
+    0% { opacity: 0; transform: translateY(0) scale(0.6) rotate(0deg); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-56px) scale(1.15) rotate(25deg); }
+}
+
+/* --- Misc UI states --- */
+
+.account-card.closed { opacity: 0.55; }
+
+.account-card .acc-status {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+.account-card .acc-status.locked { color: var(--primary-teal); }
+
+.empty-state, .loading-state {
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 24px 0;
+    text-align: center;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: var(--border-radius-sm);
+}
+
+.logout-btn:hover { color: var(--text-main); background-color: var(--overlay-05); }
+
+/* Card status + freeze/unfreeze action merged into one self-updating toggle:
+   it shows the current state and, on click, becomes the other state. */
+.status-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+}
+
+.status-toggle-btn:active { transform: scale(0.96); }
+
+.status-toggle-btn.active {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--income-green);
+}
+
+.status-toggle-btn.active:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.status-toggle-btn.frozen {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(129, 140, 248, 0.16));
+    color: var(--frozen-blue);
+}
+
+.status-toggle-btn.frozen:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(129, 140, 248, 0.28));
+}
+
+.status-toggle-btn i {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2.5;
+}
+
+.status-toggle-btn.frozen i {
+    filter: drop-shadow(0 0 3px rgba(125, 211, 252, 0.65));
+}
+
+.status-toggle-btn.is-toggling {
+    opacity: 0.6;
+    cursor: default;
+    transform: none;
+}
+
+.status-toggle-btn:disabled { cursor: default; }
+
+.card-actions-row {
+    display: flex;
+    gap: 10px;
+    align-self: flex-start;
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Same icon-pill language as .status-toggle-btn - a semantic color wash at
+   rest (neutral for a reversible setting, red for the irreversible delete),
+   intensifying on hover. */
+.card-cancel-btn,
+.card-limit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.card-cancel-btn:active,
+.card-limit-btn:active { transform: scale(0.96); }
+
+.card-limit-btn {
+    background-color: rgba(148, 163, 184, 0.12);
+    color: var(--text-muted);
+}
+.card-limit-btn:hover {
+    background-color: rgba(45, 212, 191, 0.16);
+    color: var(--primary-teal);
+}
+
+.card-cancel-btn {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--expense-red);
+}
+.card-cancel-btn:hover {
+    background-color: rgba(239, 68, 68, 0.22);
+}
+
+.card-cancel-btn i,
+.card-limit-btn i {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.5;
+}
+
+.card-reveal-number {
+    font-family: monospace;
+    font-size: 24px;
+    letter-spacing: 3px;
+    text-align: center;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--primary-teal);
+    border-radius: var(--border-radius-sm);
+    padding: 16px;
+    margin: 16px 0;
+    color: var(--primary-teal);
+}
+
+.card-reveal-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+}

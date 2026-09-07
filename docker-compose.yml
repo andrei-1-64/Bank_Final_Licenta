@@ -1,0 +1,68 @@
+# The whole app: API, frontend, and the vision service the API calls for
+# image/PDF work. The database is Supabase (hosted Postgres, accessed over
+# REST/HTTPS via supabase-py) - not run locally, see backend/.env.example.
+#
+#   docker compose up -d --build     start everything
+#   docker compose down              stop everything
+#
+# (./run.sh and .\run.ps1 are thin wrappers around exactly this.)
+name: bank
+
+services:
+  backend:
+    build: ./backend
+    env_file:
+      # Optional so a fresh clone can `docker compose up` before anyone has
+      # made a .env; app/config.py has sensible defaults for everything
+      # except SUPABASE_URL/SUPABASE_KEY and the AI layer's Azure keys.
+      - path: ./backend/.env
+        required: false
+    environment:
+      # Overrides whatever a developer's .env says: inside compose, the
+      # vision service is always reachable at its service name.
+      VISION_SERVICE_URL: http://vision:8100
+      # Same secret both sides; see the vision service below.
+      VISION_SERVICE_TOKEN: ${VISION_SERVICE_TOKEN:-dev-vision-token}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/tests:/app/tests
+      - ./backend/scripts:/app/scripts
+    depends_on:
+      vision:
+        condition: service_healthy
+
+  # Stateless image/PDF extraction: OCR (ID cards, IBANs), PDF text, and
+  # face embeddings. Holds no database credentials and no session state -
+  # it takes bytes and returns data. See vision/app/main.py.
+  vision:
+    build: ./vision
+    environment:
+      # Not a real secret in dev, and it doesn't need to be: this service
+      # has no published port, so nothing outside the compose network can
+      # reach it. Set VISION_SERVICE_TOKEN in the environment (or a .env
+      # next to this file) to override it for a real deployment.
+      VISION_SERVICE_TOKEN: ${VISION_SERVICE_TOKEN:-dev-vision-token}
+    # DELIBERATELY NO `ports:` - reachable only from other compose services,
+    # never from the host or a browser. Publishing it would expose an
+    # unauthenticated-by-design compute service to the network.
+    volumes:
+      - ./vision/app:/app/app
+      - ./vision/tests:/app/tests
+    healthcheck:
+      # backend waits on this: a request that arrives while dlib is still
+      # loading would otherwise fail for no good reason.
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8100/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend

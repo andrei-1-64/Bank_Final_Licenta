@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-title="registration.page_title">
+<head>
+    <script>try { if (localStorage.getItem('bank_preferred_language') && localStorage.getItem('bank_preferred_language') !== 'ro') document.documentElement.classList.add('i18n-pending'); } catch (_) {}</script>
+    <script>try { if (localStorage.getItem('bank_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="registration.page_title">Register - BanK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-page">
+        <div class="auth-card auth-card-wide" id="auth-card">
+            <div class="logo">
+                <img class="logo-mark" src="static/bank-mark.jpg" alt="">
+                <span class="logo-text">
+                    <span class="logo-name">BanK</span>
+                    <span class="logo-bank">BANCA</span>
+                    <span class="logo-tagline" data-i18n="brand.tagline">CONFORTUL TAU FINANCIAR</span>
+                </span>
+            </div>
+            <p class="auth-subtitle" data-i18n="registration.title">Create your account</p>
+
+            <div class="onboarding-mode-switch">
+                <button type="button" class="mode-tab active" id="mode-tab-manual" data-i18n="registration.manual">Completare manuală</button>
+                <button type="button" class="mode-tab" id="mode-tab-comodul"><i data-lucide="sparkles" class="icon"></i> <span data-i18n="registration.chat_mode">Chat cu Comodul</span></button>
+            </div>
+
+            <div class="auth-error" id="auth-error" hidden></div>
+
+            <!-- Manual form -->
+            <div id="manual-panel">
+                <form id="register-form">
+                    <div class="ocr-upload-box">
+                        <label class="field-label" data-i18n="registration.ocr_label">Completare automată din buletin <span class="field-optional">(opțional)</span></label>
+                        <div class="file-dropzone" id="id-photo-dropzone" tabindex="0" role="button" aria-label="Încarcă poza buletinului" data-i18n-aria-label="registration.upload_id">
+                            <span class="file-dropzone-icon"><i data-lucide="paperclip"></i></span>
+                            <span class="file-dropzone-text" id="id-photo-filename" data-i18n="registration.drop_id">Trage poza aici sau alege un fișier</span>
+                            <input type="file" id="id_photo" accept="image/png" hidden>
+                        </div>
+                        <p class="field-hint" id="ocr-status" data-i18n="registration.ocr_status">Doar PNG. Completează automat numele, CNP-ul și adresa mai jos.</p>
+                    </div>
+
+                    <div class="field-row">
+                        <div>
+                            <label class="field-label" for="first_name" data-i18n="registration.first_name">First name</label>
+                            <input class="field-input" type="text" id="first_name" name="first_name" required>
+                        </div>
+                        <div>
+                            <label class="field-label" for="last_name" data-i18n="registration.last_name">Last name</label>
+                            <input class="field-input" type="text" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+
+                    <label class="field-label" for="email" data-i18n="registration.email">Email</label>
+                    <input class="field-input" type="email" id="email" name="email" required autocomplete="email">
+
+                    <label class="field-label" for="password" data-i18n="registration.password">Password</label>
+                    <div class="password-field-wrapper">
+                        <input class="field-input" type="password" id="password" name="password" minlength="8" required autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" data-target="password" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                    </div>
+                    <p class="field-hint" data-i18n="registration.password_hint">At least 8 characters</p>
+
+                    <label class="field-label" for="national_id" data-i18n="registration.national_id">National ID (CNP)</label>
+                    <input class="field-input" type="text" id="national_id" name="national_id" pattern="\d{13}" required>
+                    <p class="field-hint" data-i18n="registration.national_id_hint">Gender and date of birth are read from this automatically</p>
+
+                    <div class="field-row">
+                        <div>
+                            <label class="field-label" for="phone" data-i18n="registration.phone">Phone (optional)</label>
+                            <input class="field-input" type="tel" id="phone" name="phone">
+                        </div>
+                        <div>
+                            <label class="field-label" for="address" data-i18n="registration.address">Address (optional)</label>
+                            <input class="field-input" type="text" id="address" name="address">
+                        </div>
+                    </div>
+
+                    <label class="field-label" for="referral_code" data-i18n="registration.referral">Cod referral (opțional)</label>
+                    <input class="field-input" type="text" id="referral_code" name="referral_code">
+                    <p class="field-hint" data-i18n="registration.referral_hint">Ai un cod de referral? Contul tău nou primește 500 RON cadou.</p>
+
+                    <button class="btn btn-primary auth-submit" type="submit" data-i18n="registration.submit">Register</button>
+                </form>
+            </div>
+
+            <!-- Comodul: chat-driven registration -->
+            <div id="comodul-panel" hidden>
+                <div class="chat-container comodul-chat-container">
+                    <div class="chat-header">
+                        <div class="ai-avatar"><i data-lucide="sparkles"></i></div>
+                        <div class="ai-info">
+                            <h2>Comodul</h2>
+                            <span class="status" data-i18n="registration.chat_status">Te ajut să deschizi un cont, în ritmul tău</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="comodul-messages">
+                        <div class="message ai">
+                            <div class="avatar"><i data-lucide="sparkles"></i></div>
+                            <div class="bubble" data-i18n="registration.chat_welcome">Salut! Sunt Comodul și te ajut să deschizi un cont la BanK, fără grabă. Poți să-mi spui numele tău, sau, dacă e mai simplu, poți încărca o poză a buletinului mai jos și citesc eu datele automat.</div>
+                        </div>
+                    </div>
+
+                    <div class="ocr-upload-box comodul-upload-box">
+                        <div class="file-dropzone" id="comodul-photo-dropzone" tabindex="0" role="button" aria-label="Încarcă poza buletinului" data-i18n-aria-label="registration.upload_id">
+                            <span class="file-dropzone-icon"><i data-lucide="paperclip"></i></span>
+                            <span class="file-dropzone-text" id="comodul-photo-filename" data-i18n="registration.drop_id_optional">Trage poza buletinului aici sau alege un fișier (opțional)</span>
+                            <input type="file" id="comodul_photo" accept="image/png" hidden>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="comodul-input" data-i18n-placeholder="registration.chat_placeholder" placeholder="Scrie un mesaj...">
+                        <button class="card-eye-btn chat-mic-btn" id="comodul-mic-btn" type="button" title="Dictează mesajul" aria-label="Dictează mesajul" aria-pressed="false" data-i18n-title="chat.voice_input_label" data-i18n-aria-label="chat.voice_input_label"><i data-lucide="mic"></i></button>
+                        <button class="btn-send" id="comodul-send-btn" type="button">➤</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="auth-switch"><span data-i18n="registration.already_account">Already have an account?</span> <a href="login.html" data-i18n="common.Log in">Log in</a></p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="language.js"></script>
+    <script src="theme.js"></script>
+    <script src="api.js"></script>
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        /* ------------------------------------------------------------------
+         * Reusable pieces shared by the manual form and Comodul's chat.
+         * ------------------------------------------------------------------ */
+
+        /** Same call, same validation, regardless of how the fields were
+         * gathered - manual typing and Comodul's chat both end up here. */
+        async function submitRegistration(fields) {
+            return apiFetch("/auth/register", {
+                method: "POST",
+                body: JSON.stringify(fields),
+            });
+        }
+
+        /** Uploads a PNG to the OCR endpoint and returns the extracted fields.
+         * Not apiFetch: that wrapper always forces a JSON Content-Type, which
+         * breaks a multipart upload - the browser needs to set its own
+         * Content-Type with the multipart boundary. */
+        async function extractIdPhoto(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            const res = await fetch(API_BASE_URL + "/id-ocr/extract", {
+                method: "POST",
+                credentials: "include",
+                body: formData,
+            });
+            const body = await res.json();
+            if (!res.ok) {
+                throw new Error(body?.error?.message || t("registration.request_failed", "Cererea a eșuat ({status})", { status: res.status }));
+            }
+            return body;
+        }
+
+        /** Wires a paperclip drop-zone (click, keyboard, drag-and-drop) to a
+         * hidden file input, updating the shown filename on selection, and
+         * calls `onFile(file)` every time one is picked. Used for both the
+         * manual form's dropzone and Comodul's. */
+        function wireDropzone(dropzoneId, inputId, filenameId, onFile) {
+            const dropzone = document.getElementById(dropzoneId);
+            const fileInput = document.getElementById(inputId);
+            const filenameEl = document.getElementById(filenameId);
+            const defaultHTML = filenameEl.innerHTML;
+
+            dropzone.addEventListener("click", () => fileInput.click());
+            dropzone.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    fileInput.click();
+                }
+            });
+
+            ["dragover", "dragenter"].forEach((evt) =>
+                dropzone.addEventListener(evt, (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add("dragover");
+                })
+            );
+            ["dragleave", "dragend"].forEach((evt) =>
+                dropzone.addEventListener(evt, () => dropzone.classList.remove("dragover"))
+            );
+            dropzone.addEventListener("drop", (event) => {
+                event.preventDefault();
+                dropzone.classList.remove("dragover");
+                const file = event.dataTransfer.files[0];
+                if (!file) return;
+                fileInput.files = event.dataTransfer.files;
+                fileInput.dispatchEvent(new Event("change"));
+            });
+
+            fileInput.addEventListener("change", () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    filenameEl.textContent = file.name;
+                    filenameEl.className = "file-dropzone-filename";
+                } else {
+                    filenameEl.innerHTML = defaultHTML;
+                    filenameEl.className = "file-dropzone-text";
+                }
+                if (file) onFile(file);
+            });
+        }
+
+        /* ------------------------------------------------------------------
+         * Mode switch (manual form <-> Comodul chat)
+         * ------------------------------------------------------------------ */
+
+        (() => {
+            const manualTab = document.getElementById("mode-tab-manual");
+            const comodulTab = document.getElementById("mode-tab-comodul");
+            const manualPanel = document.getElementById("manual-panel");
+            const comodulPanel = document.getElementById("comodul-panel");
+            const authCard = document.getElementById("auth-card");
+            const errorEl = document.getElementById("auth-error");
+
+            function showManual() {
+                manualTab.classList.add("active");
+                comodulTab.classList.remove("active");
+                manualPanel.hidden = false;
+                comodulPanel.hidden = true;
+                authCard.classList.remove("auth-card-comodul-active");
+                errorEl.hidden = true;
+            }
+
+            function showComodul() {
+                comodulTab.classList.add("active");
+                manualTab.classList.remove("active");
+                comodulPanel.hidden = false;
+                manualPanel.hidden = true;
+                authCard.classList.add("auth-card-comodul-active");
+                errorEl.hidden = true;
+            }
+
+            manualTab.addEventListener("click", showManual);
+            comodulTab.addEventListener("click", showComodul);
+        })();
+
+        /* ------------------------------------------------------------------
+         * Manual form
+         * ------------------------------------------------------------------ */
+
+        wireDropzone("id-photo-dropzone", "id_photo", "id-photo-filename", async (file) => {
+            const statusEl = document.getElementById("ocr-status");
+            statusEl.textContent = t("registration.ocr_extracting", "Se extrag datele din buletin...");
+            statusEl.className = "field-hint";
+
+            try {
+                const body = await extractIdPhoto(file);
+                const autofillFields = ["last_name", "first_name", "national_id", "address"];
+                let filledCount = 0;
+                for (const key of autofillFields) {
+                    if (body[key]) {
+                        document.getElementById(key).value = body[key];
+                        filledCount += 1;
+                    }
+                }
+                if (body.low_confidence) {
+                    statusEl.textContent = filledCount > 0
+                        ? t("registration.ocr_low_confidence_partial", "Poza pare neclară - am completat doar {filled}/{total} câmpuri și e posibil să fie greșite. Verifică-le cu atenție sau încarcă o poză mai clară.", { filled: filledCount, total: autofillFields.length })
+                        : t("registration.ocr_low_confidence_none", "Poza pare neclară și nu am putut citi datele. Încearcă o poză mai clară a buletinului sau completează manual.");
+                    statusEl.className = "field-hint ocr-warning";
+                } else if (filledCount > 0) {
+                    statusEl.textContent =
+                        t("registration.ocr_filled", "Date completate din buletin ({filled}/{total} câmpuri) - verifică și corectează dacă e nevoie.", { filled: filledCount, total: autofillFields.length });
+                    statusEl.className = "field-hint ocr-success";
+                } else {
+                    statusEl.textContent = t("registration.ocr_failed", "Nu am putut citi datele din poză. Completează manual.");
+                    statusEl.className = "field-hint ocr-warning";
+                }
+            } catch (err) {
+                statusEl.textContent = err.message;
+                statusEl.className = "field-hint ocr-warning";
+            }
+        });
+
+        document.getElementById("register-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const errorEl = document.getElementById("auth-error");
+            errorEl.hidden = true;
+            try {
+                await submitRegistration({
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value,
+                    first_name: document.getElementById("first_name").value,
+                    last_name: document.getElementById("last_name").value,
+                    national_id: document.getElementById("national_id").value,
+                    phone: document.getElementById("phone").value || null,
+                    address: document.getElementById("address").value || null,
+                    referral_code: document.getElementById("referral_code").value || null,
+                });
+                // Registration also logs the user in (see backend/docs/AUTH_HANDOFF.md).
+                // enroll-device.html offers (optionally) to recognize this
+                // browser, so future logins here only need the password.
+                window.location.href = "enroll-device.html";
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.hidden = false;
+            }
+        });
+
+        /* ------------------------------------------------------------------
+         * Comodul: chat-driven registration
+         * ------------------------------------------------------------------ */
+
+        // The transcript as the backend returns it (see app/ai/schemas.py::Message)
+        // - round-tripped each turn, since this is pre-auth and there's no
+        // account yet to own server-side history against.
+        let comodulHistory = [];
+
+        function appendComodulBubble(role, text, options = {}) {
+            const messages = document.getElementById("comodul-messages");
+            const wrapper = document.createElement("div");
+            wrapper.className = `message ${role}`;
+
+            if (role === "ai") {
+                const avatar = document.createElement("div");
+                avatar.className = "avatar";
+                avatar.innerHTML = '<i data-lucide="sparkles"></i>';
+                wrapper.appendChild(avatar);
+            }
+
+            const bubble = document.createElement("div");
+            bubble.className = options.bubbleClass ? `bubble ${options.bubbleClass}` : "bubble";
+            if (options.html) {
+                bubble.innerHTML = options.html;
+            } else {
+                // textContent, not innerHTML: this is model- or user-authored
+                // text and must never be interpreted as markup.
+                bubble.textContent = text;
+            }
+            wrapper.appendChild(bubble);
+
+            messages.appendChild(wrapper);
+            messages.scrollTop = messages.scrollHeight;
+            if (window.lucide) lucide.createIcons();
+            return wrapper;
+        }
+
+        function renderConfirmationCard(fields) {
+            const rows = [
+                [t("registration.summary_name", "Nume"), `${fields.first_name || ""} ${fields.last_name || ""}`.trim()],
+                [t("common.Email", "Email"), fields.email],
+                [t("registration.field_national_id_label", "CNP"), fields.national_id],
+                [t("registration.summary_phone", "Telefon"), fields.phone || "—"],
+                [t("registration.summary_address", "Adresă"), fields.address || "—"],
+                [t("registration.summary_referral", "Cod referral"), fields.referral_code || "—"],
+            ];
+            const summaryHTML = rows
+                .map(([label, value]) => `<div><strong>${escapeHTML(label)}:</strong> ${escapeHTML(String(value || "—"))}</div>`)
+                .join("");
+
+            // The password is asked for HERE, directly in a real password
+            // field, never through the chat - see the security note at the
+            // top of backend/app/modules/onboarding/tool.py. It never
+            // becomes part of `fields` (which came back from the AI) until
+            // right here, client-side, immediately before submission.
+            const wrapper = appendComodulBubble("ai", "", {
+                html: `
+                    <div class="human-in-the-loop-card">
+                        <div class="action-proposal">
+                            <strong>${escapeHTML(t("registration.confirm_heading", "Confirmare date cont nou"))}</strong>
+                            <p style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px;">${summaryHTML}</p>
+                        </div>
+                        <label class="field-label" for="comodul-password-input">Parolă (minim 8 caractere)</label>
+                        <input class="field-input" type="password" id="comodul-password-input" minlength="8" autocomplete="new-password" style="margin-bottom: 8px;">
+                        <div class="auth-error comodul-password-error" hidden></div>
+                        <div class="hitl-actions">
+                            <button class="btn btn-primary" id="comodul-confirm-btn">${escapeHTML(t("registration.confirm_button", "Confirmă și creează contul"))}</button>
+                        </div>
+                    </div>
+                `,
+            });
+
+            wrapper.querySelector("#comodul-confirm-btn").addEventListener("click", async () => {
+                const card = wrapper.querySelector(".human-in-the-loop-card");
+                const passwordInput = wrapper.querySelector("#comodul-password-input");
+                const passwordError = wrapper.querySelector(".comodul-password-error");
+                const password = passwordInput.value;
+
+                if (password.length < 8) {
+                    passwordError.textContent = "Parola trebuie să aibă cel puțin 8 caractere.";
+                    passwordError.hidden = false;
+                    return;
+                }
+                passwordError.hidden = true;
+
+                try {
+                    await submitRegistration({ ...fields, password });
+                    window.location.href = "enroll-device.html";
+                } catch (err) {
+                    if (err.code === "email_already_registered" || err.code === "national_id_already_registered") {
+                        showExistingAccountFallback(card, fields, err.code);
+                    } else {
+                        card.innerHTML = `<div style="color: var(--expense-red);">${escapeHTML(t("registration.create_account_failed", "Nu am putut crea contul: {message}. Poți continua conversația ca să corectezi.", { message: err.message }))}</div>`;
+                    }
+                }
+            });
+        }
+
+        /** Shared by both places Comodul can discover an existing account:
+         * the early check_existing_account tool call (ideal path - before
+         * the interview even continues) and the late 409 on final submit
+         * (defense in depth, e.g. if the email changed after the early
+         * check). Offers a way into the already-built forgot-password flow
+         * instead of a dead-end error - reuses that page's own 3-step
+         * OTP-over-Teams flow rather than reimplementing it here. */
+        function accountConflictCardHTML(reason, email) {
+            return `
+                <div class="action-proposal">
+                    <strong>${escapeHTML(t("registration.existing_account_heading", "Cont existent"))}</strong>
+                    <p>${escapeHTML(reason)} ${escapeHTML(t("registration.existing_account_hint", "Dacă e contul tău, te pot ajuta să-ți resetezi parola ca să te poți autentifica."))}</p>
+                </div>
+                <div class="hitl-actions">
+                    <a class="btn btn-secondary" href="login.html">${escapeHTML(t("registration.back_to_login", "Înapoi la login"))}</a>
+                    <a class="btn btn-primary" href="forgot-password.html?email=${encodeURIComponent(email)}">${escapeHTML(t("recovery.submit", "Resetează parola"))}</a>
+                </div>
+            `;
+        }
+
+        /** Late path: registration was actually attempted and rejected. */
+        function showExistingAccountFallback(card, fields, errorCode) {
+            const reason = errorCode === "email_already_registered"
+                ? t("registration.email_taken", "Există deja un cont cu acest email.")
+                : t("registration.national_id_taken", "Acest CNP este deja asociat unui cont existent.");
+            card.innerHTML = accountConflictCardHTML(reason, fields.email);
+        }
+
+        /** Early path: check_existing_account caught it before the rest of
+         * the interview even happened - a brand new bubble, not editing an
+         * existing confirmation card (there isn't one yet). */
+        function renderAccountConflictBubble(conflict) {
+            const reason = conflict.matched_field === "email"
+                ? t("registration.email_taken", "Există deja un cont cu acest email.")
+                : t("registration.national_id_taken", "Acest CNP este deja asociat unui cont existent.");
+            appendComodulBubble("ai", "", {
+                html: `<div class="human-in-the-loop-card">${accountConflictCardHTML(reason, conflict.email)}</div>`,
+            });
+        }
+
+        function escapeHTML(str) {
+            return String(str).replace(/[&<>'"]/g,
+                (tag) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[tag] || tag)
+            );
+        }
+
+        async function sendComodulMessage(message) {
+            const input = document.getElementById("comodul-input");
+            const sendBtn = document.getElementById("comodul-send-btn");
+
+            appendComodulBubble("user", message);
+            input.value = "";
+            sendBtn.disabled = true;
+
+            const typingBubble = appendComodulBubble("ai", "", {
+                bubbleClass: "typing",
+                html:
+                    `<div class="typing-label">${escapeHTML(t("registration.chat_typing", "Comodul scrie..."))}</div>` +
+                    '<div class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>',
+            });
+
+            try {
+                const response = await apiFetch("/onboarding/chat", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        message,
+                        history: comodulHistory,
+                        language: document.documentElement.lang || "ro",
+                    }),
+                });
+                typingBubble.remove();
+                appendComodulBubble("ai", response.reply);
+                comodulHistory = response.history;
+
+                if (response.account_conflict) {
+                    renderAccountConflictBubble(response.account_conflict);
+                } else if (response.collected_fields) {
+                    renderConfirmationCard(response.collected_fields);
+                }
+            } catch (err) {
+                typingBubble.remove();
+                appendComodulBubble("ai", t("registration.chat_error", "A apărut o problemă: {message}", { message: err.message }), { bubbleClass: "error" });
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        document.getElementById("comodul-send-btn").addEventListener("click", () => {
+            const input = document.getElementById("comodul-input");
+            const message = input.value.trim();
+            if (message) sendComodulMessage(message);
+        });
+        document.getElementById("comodul-input").addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                const message = event.target.value.trim();
+                if (message) sendComodulMessage(message);
+            }
+        });
+
+        /** Maps the app's short language code (language.js sets document.documentElement.lang
+         * to one of these) to the BCP-47 locale the SpeechRecognition API expects. Mirrors
+         * the same table in app.js for the main dashboard chat. */
+        const SPEECH_RECOGNITION_LOCALES = {
+            ro: "ro-RO", en: "en-US", uk: "uk-UA", hu: "hu-HU", tr: "tr-TR",
+            it: "it-IT", es: "es-ES", fr: "fr-FR", de: "de-DE",
+        };
+
+        /** Lets the user dictate into Comodul's chat input using the browser's native
+         * SpeechRecognition API - same behaviour as the main dashboard chat's mic button
+         * (see wireChatMic in app.js). Hides the button on browsers without the API. */
+        function wireComodulMic() {
+            const micBtn = document.getElementById("comodul-mic-btn");
+            const input = document.getElementById("comodul-input");
+            if (!micBtn || !input) return;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                micBtn.hidden = true;
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+
+            let listening = false;
+            let baseText = "";
+
+            const stopListening = () => {
+                listening = false;
+                micBtn.classList.remove("listening");
+                micBtn.setAttribute("aria-pressed", "false");
+            };
+
+            recognition.addEventListener("start", () => {
+                listening = true;
+                micBtn.classList.add("listening");
+                micBtn.setAttribute("aria-pressed", "true");
+                baseText = input.value.trim() ? `${input.value.trim()} ` : "";
+            });
+
+            recognition.addEventListener("result", (event) => {
+                let transcript = "";
+                for (let i = 0; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                input.value = baseText + transcript;
+            });
+
+            recognition.addEventListener("error", (event) => {
+                stopListening();
+                if (event.error === "no-speech" || event.error === "aborted") return;
+                appendComodulBubble("ai", t("chat.voice_input_error", "Voice input failed. Please try again or type your message."), { bubbleClass: "error" });
+            });
+
+            recognition.addEventListener("end", stopListening);
+
+            micBtn.addEventListener("click", () => {
+                if (listening) {
+                    recognition.stop();
+                    return;
+                }
+                recognition.lang = SPEECH_RECOGNITION_LOCALES[document.documentElement.lang] || "en-US";
+                try {
+                    recognition.start();
+                } catch {
+                    /* start() throws if recognition is already running; nothing to do. */
+                }
+            });
+        }
+        wireComodulMic();
+
+        wireDropzone("comodul-photo-dropzone", "comodul_photo", "comodul-photo-filename", async (file) => {
+            appendComodulBubble("user", "", {
+                html: `<span class="attachment-icon"><i data-lucide="paperclip"></i></span> ${escapeHTML(file.name)}`,
+            });
+            const typingBubble = appendComodulBubble("ai", "", {
+                bubbleClass: "typing",
+                html: `<div class="typing-label">${escapeHTML(t("registration.reading_photo", "Citesc poza..."))}</div>`,
+            });
+
+            let extracted;
+            try {
+                extracted = await extractIdPhoto(file);
+            } catch (err) {
+                typingBubble.remove();
+                appendComodulBubble("ai", t("registration.photo_read_failed", "Nu am putut citi poza: {message}. Putem continua și manual, prin chat.", { message: err.message }), { bubbleClass: "error" });
+                return;
+            }
+            typingBubble.remove();
+
+            const readFields = [
+                extracted.last_name && t("registration.field_last_name", "Nume: {value}", { value: extracted.last_name }),
+                extracted.first_name && t("registration.field_first_name", "Prenume: {value}", { value: extracted.first_name }),
+                extracted.national_id && t("registration.field_national_id", "CNP: {value}", { value: extracted.national_id }),
+                extracted.address && t("registration.field_address", "Adresă: {value}", { value: extracted.address }),
+            ].filter(Boolean);
+
+            let message = readFields.length
+                ? t("registration.photo_uploaded_fields", "Am încărcat o poză a buletinului. Datele citite automat sunt: {fields}.", { fields: readFields.join(", ") })
+                : t("registration.photo_uploaded_empty", "Am încărcat o poză a buletinului, dar nu s-a putut citi nimic din ea.");
+            if (extracted.low_confidence) {
+                message += readFields.length
+                    ? t("registration.photo_low_confidence_hint", " Poza pare neclară, deci verifică-mi te rog dacă datele astea sunt corecte sau spune-mi dacă vrei să încarc o poză mai clară.")
+                    : t("registration.photo_low_confidence_hint_empty", " Poza pare neclară - poate ar trebui să încarc alta, mai clară.");
+            }
+
+            await sendComodulMessage(message);
+        });
+    </script>
+</body>
+</html>

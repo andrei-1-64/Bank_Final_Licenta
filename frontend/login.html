@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-title="auth.login_title">
+<head>
+    <script>try { if (localStorage.getItem('bank_preferred_language') && localStorage.getItem('bank_preferred_language') !== 'ro') document.documentElement.classList.add('i18n-pending'); } catch (_) {}</script>
+    <script>try { if (localStorage.getItem('bank_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="auth.login_title">Log in - BanK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+    <!-- Toggled by setFaceFlashlight() (api.js) whenever a face camera is
+         running - see style.css for the layering. -->
+    <div id="face-flashlight-overlay"></div>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="logo">
+                <img class="logo-mark" src="static/bank-mark.jpg" alt="">
+                <span class="logo-text">
+                    <span class="logo-name">BanK</span>
+                    <span class="logo-bank">BANCA</span>
+                    <span class="logo-tagline" data-i18n="brand.tagline">CONFORTUL TAU FINANCIAR</span>
+                </span>
+            </div>
+
+            <!-- Recognized-device path: shown only after GET /trusted-devices/check
+                 confirms this browser already completed OTP enrollment. -->
+            <div id="device-login" hidden>
+                <p class="auth-subtitle"><span data-i18n="auth.device_welcome_back">Bine ai revenit,</span> <span id="device-email"></span></p>
+
+                <!-- Face-first path: shown when this (already-known) account
+                     has Face ID enrolled. Falls back to the password section
+                     below after a few failed match attempts, or if the user
+                     asks for it directly. -->
+                <div id="device-face-section" hidden>
+                    <p class="field-hint" style="margin-bottom: 16px;" data-i18n="auth.device_face_hint">
+                        Acest calculator este recunoscut - confirmă cu Face ID pentru a continua.
+                    </p>
+                    <div class="auth-error" id="device-face-error" hidden></div>
+
+                    <div class="face-camera-wrap">
+                        <video id="device-face-video" autoplay playsinline muted></video>
+                        <canvas id="device-face-canvas" hidden></canvas>
+                    </div>
+
+                    <p class="field-hint" id="device-face-blink-hint" style="margin-top: 8px;" hidden data-i18n="face_confirm.blink_now">Clipește acum...</p>
+                    <button type="button" class="btn btn-secondary auth-submit" id="device-face-start-btn" data-i18n="auth.start_camera">Pornește camera</button>
+                    <button type="button" class="btn btn-primary auth-submit" id="device-face-capture-btn" hidden data-i18n="auth.confirm_with_face">Confirmă cu Face</button>
+
+                    <p class="auth-switch"><a href="#" id="device-face-use-password-link" data-i18n="auth.use_password_instead">Folosește parola în schimb</a></p>
+                </div>
+
+                <div id="device-password-section">
+                    <p class="field-hint" style="margin-bottom: 20px;" data-i18n="auth.device_password_hint">
+                        Acest calculator este recunoscut - introdu doar parola pentru a continua.
+                    </p>
+
+                    <div class="auth-error" id="device-error" hidden></div>
+
+                    <form id="device-login-form">
+                        <label class="field-label" for="device-password" data-i18n="common.Password">Password</label>
+                        <div class="password-field-wrapper">
+                            <input class="field-input" type="password" id="device-password" required autocomplete="current-password">
+                            <button type="button" class="password-toggle-btn" data-target="device-password" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                        </div>
+
+                        <button class="btn btn-primary auth-submit" type="submit" data-i18n="auth.continue">Continuă</button>
+                    </form>
+                </div>
+
+                <p class="auth-switch"><a href="#" id="not-you-link" data-i18n="auth.not_you">Nu ești tu? Autentifică-te cu alt cont</a></p>
+                <p class="auth-switch"><a href="forgot-password.html" data-i18n="auth.forgot_password">Ai uitat parola?</a></p>
+            </div>
+
+            <!-- Normal path: default until proven otherwise, and always
+                 reachable via "Nu ești tu?" above. -->
+            <div id="normal-login">
+                <p class="auth-subtitle" data-i18n="common.Log in to your account">Log in to your account</p>
+
+                <div class="auth-error" id="auth-error" hidden></div>
+
+                <form id="login-form">
+                    <label class="field-label" for="email" data-i18n="common.Email">Email</label>
+                    <input class="field-input" type="email" id="email" name="email" required autocomplete="email">
+
+                    <label class="field-label" for="password" data-i18n="common.Password">Password</label>
+                    <div class="password-field-wrapper">
+                        <input class="field-input" type="password" id="password" name="password" required autocomplete="current-password">
+                        <button type="button" class="password-toggle-btn" data-target="password" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                    </div>
+
+                    <button class="btn btn-primary auth-submit" type="submit" data-i18n="common.Log in">Log in</button>
+                </form>
+
+                <!-- Face login: DIY, camera-based (see backend/app/modules/
+                     face_auth) - toggles in place of the password form above. -->
+                <div id="face-login-section" hidden>
+                    <div class="auth-error" id="face-login-error" hidden></div>
+
+                    <label class="field-label" for="face-login-email" data-i18n="common.Email">Email</label>
+                    <input class="field-input" type="email" id="face-login-email" required autocomplete="email">
+
+                    <div class="face-camera-wrap" style="margin-top: 16px;">
+                        <video id="face-login-video" autoplay playsinline muted></video>
+                        <canvas id="face-login-canvas" hidden></canvas>
+                    </div>
+
+                    <p class="field-hint" id="face-login-blink-hint" style="margin-top: 8px;" hidden data-i18n="face_confirm.blink_now">Clipește acum...</p>
+                    <button type="button" class="btn btn-secondary auth-submit" id="face-login-start-btn" data-i18n="auth.start_camera">Pornește camera</button>
+                    <button type="button" class="btn btn-primary auth-submit" id="face-login-capture-btn" hidden data-i18n="auth.face_login">Login cu Face</button>
+                </div>
+
+                <p class="auth-switch"><a href="#" id="toggle-face-login" data-i18n="auth.face_login">Login cu Face</a></p>
+                <p class="auth-switch"><a href="forgot-password.html" data-i18n="auth.forgot_password">Ai uitat parola?</a></p>
+                <p class="auth-switch"><span data-i18n="common.No account yet?">No account yet?</span> <a href="register.html" data-i18n="common.Register">Register</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="language.js"></script>
+    <script src="theme.js"></script>
+    <script src="api.js"></script>
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        const deviceLoginPanel = document.getElementById('device-login');
+        const normalLoginPanel = document.getElementById('normal-login');
+        const deviceFaceSection = document.getElementById('device-face-section');
+        const devicePasswordSection = document.getElementById('device-password-section');
+        const deviceFaceVideo = document.getElementById('device-face-video');
+        const deviceFaceCanvas = document.getElementById('device-face-canvas');
+        const deviceFaceStartBtn = document.getElementById('device-face-start-btn');
+        const deviceFaceCaptureBtn = document.getElementById('device-face-capture-btn');
+        const deviceFaceErrorEl = document.getElementById('device-face-error');
+        const deviceFaceBlinkHintEl = document.getElementById('device-face-blink-hint');
+        const deviceFaceUsePasswordLink = document.getElementById('device-face-use-password-link');
+        const deviceErrorEl = document.getElementById('device-error');
+
+        // First attempt + 2 retries, then give up on Face ID for this visit
+        // and fall back to the password field - a single bad-lighting shot
+        // shouldn't lock a recognized device out of logging in at all.
+        const DEVICE_FACE_MAX_ATTEMPTS = 3;
+        let deviceFaceAttempts = 0;
+        let deviceFaceStream = null;
+        let deviceFaceEmail = null;
+
+        function showNormalLogin() {
+            deviceLoginPanel.hidden = true;
+            normalLoginPanel.hidden = false;
+            stopDeviceFaceCamera();
+        }
+
+        function stopDeviceFaceCamera() {
+            if (deviceFaceStream) {
+                deviceFaceStream.getTracks().forEach(track => track.stop());
+                deviceFaceStream = null;
+            }
+            deviceFaceVideo.srcObject = null;
+            deviceFaceStartBtn.hidden = false;
+            deviceFaceCaptureBtn.hidden = true;
+            setFaceFlashlight(false);
+        }
+
+        function fallBackToDevicePassword(message) {
+            stopDeviceFaceCamera();
+            deviceFaceSection.hidden = true;
+            devicePasswordSection.hidden = false;
+            if (message) {
+                deviceErrorEl.textContent = message;
+                deviceErrorEl.hidden = false;
+            }
+        }
+
+        (async () => {
+            try {
+                const result = await apiFetch('/trusted-devices/check');
+                if (result.trusted) {
+                    document.getElementById('device-email').textContent = result.email;
+                    deviceFaceEmail = result.email;
+                    deviceLoginPanel.hidden = false;
+                    normalLoginPanel.hidden = true;
+                    deviceFaceAttempts = 0;
+                    if (result.face_enrolled) {
+                        deviceFaceSection.hidden = false;
+                        devicePasswordSection.hidden = true;
+                    } else {
+                        deviceFaceSection.hidden = true;
+                        devicePasswordSection.hidden = false;
+                    }
+                }
+            } catch {
+                // Any failure here just falls back to the normal form -
+                // this is a convenience shortcut, never a requirement.
+            }
+        })();
+
+        document.getElementById('not-you-link').addEventListener('click', (event) => {
+            event.preventDefault();
+            showNormalLogin();
+        });
+
+        deviceFaceUsePasswordLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            fallBackToDevicePassword();
+        });
+
+        deviceFaceStartBtn.addEventListener('click', async () => {
+            deviceFaceErrorEl.hidden = true;
+            try {
+                deviceFaceStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                deviceFaceVideo.srcObject = deviceFaceStream;
+                deviceFaceStartBtn.hidden = true;
+                deviceFaceCaptureBtn.hidden = false;
+                setFaceFlashlight(true);
+            } catch {
+                deviceFaceErrorEl.textContent = t("face_confirm.camera_error", "Nu s-a putut accesa camera. Verifică permisiunile browserului.");
+                deviceFaceErrorEl.hidden = false;
+            }
+        });
+
+        deviceFaceCaptureBtn.addEventListener('click', async () => {
+            deviceFaceErrorEl.hidden = true;
+            deviceFaceCaptureBtn.disabled = true;
+            if (deviceFaceBlinkHintEl) deviceFaceBlinkHintEl.hidden = false;
+
+            try {
+                const frames = await captureFaceBurst(deviceFaceVideo, deviceFaceCanvas);
+                const formData = new FormData();
+                formData.append('email', deviceFaceEmail);
+                frames.forEach((blob, i) => formData.append('files', blob, `frame-${i}.jpg`));
+
+                const res = await fetch(`${API_BASE_URL}/auth/face/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData,
+                });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    throw new Error(body?.error?.message || `Request failed (${res.status})`);
+                }
+                window.location.href = 'index.html';
+            } catch (err) {
+                deviceFaceAttempts += 1;
+                const attemptsLeft = DEVICE_FACE_MAX_ATTEMPTS - deviceFaceAttempts;
+                if (attemptsLeft > 0) {
+                    deviceFaceErrorEl.textContent =
+                        t("auth.device_face_attempts_left", "{message} Mai poți încerca de {count} ori.", { message: err.message, count: attemptsLeft });
+                    deviceFaceErrorEl.hidden = false;
+                } else {
+                    fallBackToDevicePassword(
+                        t("auth.device_face_failed_fallback", "Nu am reușit să te recunoaștem prin Face ID. Continuă cu parola.")
+                    );
+                }
+            } finally {
+                if (deviceFaceBlinkHintEl) deviceFaceBlinkHintEl.hidden = true;
+                deviceFaceCaptureBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('device-login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const errorEl = document.getElementById('device-error');
+            errorEl.hidden = true;
+            try {
+                await apiFetch('/trusted-devices/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        password: document.getElementById('device-password').value,
+                    }),
+                });
+                window.location.href = 'index.html';
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.hidden = false;
+            }
+        });
+
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const errorEl = document.getElementById("auth-error");
+            errorEl.hidden = true;
+            try {
+                await apiFetch("/auth/login", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value,
+                        password: document.getElementById("password").value,
+                    }),
+                });
+                window.location.href = "index.html";
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.hidden = false;
+            }
+        });
+
+        /* --- Face login (DIY, camera-based) --- */
+        const loginForm = document.getElementById("login-form");
+        const faceSection = document.getElementById("face-login-section");
+        const toggleFaceLink = document.getElementById("toggle-face-login");
+        const faceVideo = document.getElementById("face-login-video");
+        const faceCanvas = document.getElementById("face-login-canvas");
+        const faceStartBtn = document.getElementById("face-login-start-btn");
+        const faceCaptureBtn = document.getElementById("face-login-capture-btn");
+        const faceErrorEl = document.getElementById("face-login-error");
+        const faceBlinkHintEl = document.getElementById("face-login-blink-hint");
+
+        let faceLoginStream = null;
+
+        function updateFaceToggleLabel() {
+            toggleFaceLink.textContent = faceSection.hidden
+                ? t("auth.face_login", "Login cu Face")
+                : t("auth.face_password", "Login cu parolă");
+        }
+
+        function stopFaceLoginCamera() {
+            if (faceLoginStream) {
+                faceLoginStream.getTracks().forEach(track => track.stop());
+                faceLoginStream = null;
+            }
+            faceVideo.srcObject = null;
+            faceStartBtn.hidden = false;
+            faceCaptureBtn.hidden = true;
+            setFaceFlashlight(false);
+        }
+
+        toggleFaceLink.addEventListener("click", (event) => {
+            event.preventDefault();
+            const showingFace = !faceSection.hidden;
+            faceSection.hidden = !faceSection.hidden;
+            loginForm.hidden = !loginForm.hidden;
+            updateFaceToggleLabel();
+            if (showingFace) stopFaceLoginCamera();
+        });
+
+        window.addEventListener("languagechange", updateFaceToggleLabel);
+
+        faceStartBtn.addEventListener("click", async () => {
+            faceErrorEl.hidden = true;
+            try {
+                faceLoginStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                faceVideo.srcObject = faceLoginStream;
+                faceStartBtn.hidden = true;
+                faceCaptureBtn.hidden = false;
+                setFaceFlashlight(true);
+            } catch {
+                faceErrorEl.textContent = t("face_confirm.camera_error", "Nu s-a putut accesa camera. Verifică permisiunile browserului.");
+                faceErrorEl.hidden = false;
+            }
+        });
+
+        faceCaptureBtn.addEventListener("click", async () => {
+            faceErrorEl.hidden = true;
+            const email = document.getElementById("face-login-email").value;
+            if (!email) {
+                faceErrorEl.textContent = t("auth.enter_account_email", "Introdu email-ul contului.");
+                faceErrorEl.hidden = false;
+                return;
+            }
+
+            faceCaptureBtn.disabled = true;
+            if (faceBlinkHintEl) faceBlinkHintEl.hidden = false;
+
+            try {
+                const frames = await captureFaceBurst(faceVideo, faceCanvas);
+                const formData = new FormData();
+                formData.append("email", email);
+                frames.forEach((blob, i) => formData.append("files", blob, `frame-${i}.jpg`));
+
+                const res = await fetch(`${API_BASE_URL}/auth/face/login`, {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData,
+                });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    throw new Error(body?.error?.message || `Request failed (${res.status})`);
+                }
+                window.location.href = "index.html";
+            } catch (err) {
+                faceErrorEl.textContent = err.message;
+                faceErrorEl.hidden = false;
+            } finally {
+                if (faceBlinkHintEl) faceBlinkHintEl.hidden = true;
+                faceCaptureBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

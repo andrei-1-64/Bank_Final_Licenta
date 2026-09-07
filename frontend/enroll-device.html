@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-title="enrollment.title">
+<head>
+    <script>try { if (localStorage.getItem('bank_preferred_language') && localStorage.getItem('bank_preferred_language') !== 'ro') document.documentElement.classList.add('i18n-pending'); } catch (_) {}</script>
+    <script>try { if (localStorage.getItem('bank_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="enrollment.title">Verifică dispozitivul - BanK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="logo">
+                <img class="logo-mark" src="static/bank-mark.jpg" alt="">
+                <span class="logo-text">
+                    <span class="logo-name">BanK</span>
+                    <span class="logo-bank">BANCA</span>
+                    <span class="logo-tagline" data-i18n="brand.tagline">CONFORTUL TAU FINANCIAR</span>
+                </span>
+            </div>
+            <p class="auth-subtitle" data-i18n="enrollment.heading">Recunoaște acest dispozitiv</p>
+            <p class="field-hint" style="margin-bottom: 20px;">
+                <span data-i18n="enrollment.description">Ți-am trimis un cod de 6 cifre prin Teams. Introdu-l ca data viitoare să poți intra de pe acest calculator doar cu parola, fără să retastezi emailul.</span>
+            </p>
+
+            <div class="auth-error" id="enroll-error" hidden></div>
+
+            <form id="enroll-form">
+                <label class="field-label" for="enroll-code" data-i18n="recovery.code_label">Cod (6 cifre)</label>
+                <input class="field-input" type="text" id="enroll-code" required inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="123456" autocomplete="one-time-code">
+
+                <button class="btn btn-primary auth-submit" type="submit" data-i18n="enrollment.confirm">Confirmă dispozitivul</button>
+            </form>
+
+            <p class="auth-switch">
+                <span data-i18n="recovery.resend_prompt">Nu a venit codul?</span> <a href="#" id="resend-code-link" data-i18n="recovery.resend">Trimite din nou</a>
+            </p>
+            <p class="auth-switch"><a href="index.html" data-i18n="enrollment.later">Mai târziu</a></p>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="language.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        const errorEl = document.getElementById('enroll-error');
+
+        async function requestCode() {
+            try {
+                await apiFetch('/trusted-devices/enroll/request', { method: 'POST' });
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.hidden = false;
+            }
+        }
+
+        // Fires automatically on load - the user already has a session
+        // (they just registered), so there's nothing to type before the
+        // first code is sent.
+        requestCode();
+
+        document.getElementById('resend-code-link').addEventListener('click', (event) => {
+            event.preventDefault();
+            errorEl.hidden = true;
+            requestCode();
+        });
+
+        document.getElementById('enroll-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorEl.hidden = true;
+            try {
+                await apiFetch('/trusted-devices/enroll/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ code: document.getElementById('enroll-code').value }),
+                });
+                window.location.href = 'index.html';
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.hidden = false;
+            }
+        });
+    </script>
+</body>
+</html>

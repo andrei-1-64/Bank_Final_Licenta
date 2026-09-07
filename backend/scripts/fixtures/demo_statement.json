@@ -1,0 +1,54 @@
+{
+  "_comment": "Synthetic Azure Document Intelligence layout result, shaped like tests/unit/test_statement_extractor.py's FakeResult/FakeTable/FakeCell fixtures (tables[].cells[] with row_index/column_index/content/kind, paragraphs[] with content/role). Loaded by scripts/seed_demo_data.py and run through the real app.modules.documents.statement_extractor.parse_layout_result - not a real bank export, and not read directly by any app code.",
+  "paragraphs": [
+    {"content": "Banca Demo Romania - Extras de cont", "role": "title"}
+  ],
+  "tables": [
+    {
+      "row_count": 7,
+      "cells": [
+        {"row_index": 0, "column_index": 0, "content": "Data", "kind": "columnHeader"},
+        {"row_index": 0, "column_index": 1, "content": "Descriere", "kind": "columnHeader"},
+        {"row_index": 0, "column_index": 2, "content": "Debit", "kind": "columnHeader"},
+        {"row_index": 0, "column_index": 3, "content": "Credit", "kind": "columnHeader"},
+        {"row_index": 0, "column_index": 4, "content": "Sold", "kind": "columnHeader"},
+
+        {"row_index": 1, "column_index": 0, "content": "02.08.2026"},
+        {"row_index": 1, "column_index": 1, "content": "LIDL ROMANIA SRL"},
+        {"row_index": 1, "column_index": 2, "content": "85,50"},
+        {"row_index": 1, "column_index": 3, "content": ""},
+        {"row_index": 1, "column_index": 4, "content": "4.914,50"},
+
+        {"row_index": 2, "column_index": 0, "content": "05.08.2026"},
+        {"row_index": 2, "column_index": 1, "content": "SALARIU ACME SRL"},
+        {"row_index": 2, "column_index": 2, "content": ""},
+        {"row_index": 2, "column_index": 3, "content": "6.000,00"},
+        {"row_index": 2, "column_index": 4, "content": "10.914,50"},
+
+        {"row_index": 3, "column_index": 0, "content": "07.08.2026"},
+        {"row_index": 3, "column_index": 1, "content": "NETFLIX.COM"},
+        {"row_index": 3, "column_index": 2, "content": "34,99"},
+        {"row_index": 3, "column_index": 3, "content": ""},
+        {"row_index": 3, "column_index": 4, "content": "10.879,51"},
+
+        {"row_index": 4, "column_index": 0, "content": "12.08.2026"},
+        {"row_index": 4, "column_index": 1, "content": "STB S.A."},
+        {"row_index": 4, "column_index": 2, "content": "70,00"},
+        {"row_index": 4, "column_index": 3, "content": ""},
+        {"row_index": 4, "column_index": 4, "content": "10.809,51"},
+
+        {"row_index": 5, "column_index": 0, "content": "18.08.2026"},
+        {"row_index": 5, "column_index": 1, "content": "MEGA IMAGE"},
+        {"row_index": 5, "column_index": 2, "content": "112,30"},
+        {"row_index": 5, "column_index": 3, "content": ""},
+        {"row_index": 5, "column_index": 4, "content": "10.697,21"},
+
+        {"row_index": 6, "column_index": 0, "content": "20.08.2026"},
+        {"row_index": 6, "column_index": 1, "content": "COMISION ADMINISTRARE CONT"},
+        {"row_index": 6, "column_index": 2, "content": "5,00"},
+        {"row_index": 6, "column_index": 3, "content": ""},
+        {"row_index": 6, "column_index": 4, "content": "10.692,21"}
+      ]
+    }
+  ]
+}

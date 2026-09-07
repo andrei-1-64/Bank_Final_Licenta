@@ -1,0 +1,236 @@
+/* Admin panel styling.
+ *
+ * Kept in its own file rather than appended to style.css: the admin panel is
+ * a separate page with a separate audience, and style.css is already shared
+ * by every customer-facing page. Uses the same custom properties defined
+ * there (:root in style.css), so the two stay visually in sync.
+ */
+
+/* style.css caps .standalone-card at 480px - it was designed for the narrow
+ * login/auth cards. The admin panel reuses the class for full-width data
+ * tables, where that cap is what forces every table into a horizontal
+ * scrollbar. Overriding here is safe: admin.css is only loaded by
+ * admin.html, so the customer-facing pages keep the original width. */
+.standalone-card {
+    max-width: none;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+}
+
+.admin-back-link {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+}
+
+.admin-back-link:hover {
+    background: var(--bg-surface-hover);
+    color: var(--text-main);
+}
+
+.admin-identity {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* --- stat tiles ------------------------------------------------------- */
+
+.admin-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.admin-stat {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+}
+
+.admin-stat-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.admin-stat-value {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* --- tables ----------------------------------------------------------- */
+
+/* Horizontal scroll lives on the wrapper so a wide table never forces the
+   whole page to scroll sideways. */
+.admin-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.admin-table th,
+.admin-table td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color);
+    /* Wrapping, not nowrap: long values (IBAN, merchant descriptions,
+       delivery addresses) are exactly what pushed these tables past the
+       viewport before. Columns that must stay on one line opt in below. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+}
+
+/* Short, fixed-shape values that look wrong broken across lines. */
+.admin-table td.num,
+.admin-table th.num,
+.admin-table td.nowrap,
+.admin-table th.nowrap {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+.admin-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-table td.num,
+.admin-table th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-table tbody tr:hover {
+    background: var(--bg-surface-hover);
+}
+
+.admin-table .row-clickable {
+    cursor: pointer;
+}
+
+.admin-empty {
+    color: var(--text-muted);
+    padding: 18px 14px;
+}
+
+/* --- badges ----------------------------------------------------------- */
+
+.admin-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--bg-surface-hover);
+    color: var(--text-muted);
+}
+
+.admin-badge.pending  { background: rgba(59, 130, 246, 0.15); color: var(--secondary-blue); }
+.admin-badge.shipped  { background: rgba(45, 212, 191, 0.15); color: var(--primary-teal); }
+.admin-badge.delivered{ background: rgba(16, 185, 129, 0.15); color: var(--income-green); }
+.admin-badge.cancelled{ background: rgba(239, 68, 68, 0.15);  color: var(--expense-red); }
+.admin-badge.admin    { background: rgba(45, 212, 191, 0.15); color: var(--primary-teal); }
+
+/* --- misc ------------------------------------------------------------- */
+
+.admin-search {
+    max-width: 320px;
+}
+
+/* The detail panel's title row carries action buttons, so it has to wrap
+   rather than squash them on a narrow window. */
+.section-header-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.section-header-row .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-mini-btn {
+    background: var(--bg-surface-hover);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.admin-mini-btn:hover:not(:disabled) {
+    background: var(--primary-teal);
+    color: var(--bg-dark);
+}
+
+.admin-mini-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.admin-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.admin-detail-field .label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+}
+
+.admin-send-document-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    max-width: 520px;
+}
+
+.admin-send-document-form textarea.field-input {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.admin-send-document-form .admin-mini-btn {
+    align-self: flex-start;
+}
+
+.admin-subheading {
+    margin: 22px 0 10px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}

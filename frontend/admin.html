@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <script>try { if (localStorage.getItem('bank_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BanK Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Hidden until GET /admin/me confirms the role, so a non-admin never
+         sees the chrome of a page they can't use (admin.js reveals it). -->
+    <div class="app-container" id="admin-shell" hidden>
+        <aside class="sidebar">
+            <div class="logo">
+                <img class="logo-mark" src="static/bank-mark.jpg" alt="">
+                <span class="logo-text">
+                    <span class="logo-name">BanK</span>
+                    <span class="logo-bank">ADMIN</span>
+                    <span class="logo-tagline">PANOU DE ADMINISTRARE</span>
+                </span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-view="stats">
+                    <i data-lucide="bar-chart-3" class="icon"></i>
+                    <span>Statistici</span>
+                </button>
+                <button class="nav-item" data-view="users">
+                    <i data-lucide="users" class="icon"></i>
+                    <span>Utilizatori</span>
+                </button>
+                <button class="nav-item" data-view="orders">
+                    <i data-lucide="package" class="icon"></i>
+                    <span>Comenzi carduri</span>
+                </button>
+                <button class="nav-item" data-view="audit">
+                    <i data-lucide="scroll-text" class="icon"></i>
+                    <span>Jurnal audit</span>
+                </button>
+            </nav>
+            <a class="admin-back-link" href="index.html">
+                <i data-lucide="arrow-left" class="icon"></i>
+                <span>Înapoi în aplicație</span>
+            </a>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h1 class="view-title" id="admin-view-title">Statistici</h1>
+                <div class="user-actions">
+                    <span class="admin-identity" id="admin-identity"></span>
+                </div>
+            </header>
+
+            <p class="auth-error" id="admin-error" role="alert" hidden></p>
+
+            <div class="views-container">
+                <!-- Statistici -->
+                <section class="view active" id="view-stats">
+                    <div class="admin-stat-grid" id="admin-stat-grid"></div>
+                    <div class="standalone-card">
+                        <div class="section-header-row">
+                            <h2 class="section-title">Solduri pe valută</h2>
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="admin-currency-table">
+                                <thead>
+                                    <tr><th>Valută</th><th>Conturi</th><th class="num">Total</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Utilizatori -->
+                <section class="view" id="view-users">
+                    <div class="standalone-card">
+                        <div class="section-header-row">
+                            <h2 class="section-title">Utilizatori</h2>
+                            <input class="field-input admin-search" id="admin-user-search"
+                                   type="search" placeholder="Caută după email sau nume…"
+                                   autocomplete="off">
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="admin-users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nume</th><th>Email</th><th>Rol</th>
+                                        <th>Stare</th><th>Creat</th><th>Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="standalone-card" id="admin-user-detail" hidden></div>
+                </section>
+
+                <!-- Comenzi carduri -->
+                <section class="view" id="view-orders">
+                    <div class="standalone-card">
+                        <div class="section-header-row">
+                            <h2 class="section-title">Comenzi de card fizic</h2>
+                            <select class="field-input admin-search" id="admin-order-status">
+                                <option value="">Toate stările</option>
+                                <option value="pending">În așteptare</option>
+                                <option value="shipped">Expediate</option>
+                                <option value="delivered">Livrate</option>
+                                <option value="cancelled">Anulate</option>
+                            </select>
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="admin-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th><th>Livrare</th><th>Stare</th>
+                                        <th>Creată</th><th>Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Jurnal audit -->
+                <section class="view" id="view-audit">
+                    <div class="standalone-card">
+                        <div class="section-header-row">
+                            <h2 class="section-title">Jurnal audit</h2>
+                            <input class="field-input admin-search" id="admin-audit-filter"
+                                   type="search" placeholder="Filtrează după acțiune…"
+                                   autocomplete="off">
+                        </div>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table" id="admin-audit-table">
+                                <thead>
+                                    <tr><th>Când</th><th>Acțiune</th><th>Entitate</th><th>Utilizator</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="theme.js"></script>
+    <script src="api.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

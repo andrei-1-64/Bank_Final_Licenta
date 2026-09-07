@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-title="dashboard.title">
+<head>
+    <script>try { if (localStorage.getItem('bank_preferred_language') && localStorage.getItem('bank_preferred_language') !== 'ro') document.documentElement.classList.add('i18n-pending'); } catch (_) {}</script>
+    <script>try { if (localStorage.getItem('bank_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="dashboard.title">BanK Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Toggled by setFaceFlashlight() (api.js) whenever a face camera not
+         inside a modal is running - see style.css for the layering. -->
+    <div id="face-flashlight-overlay"></div>
+    <!-- New-notification pop-ups (see pollNotifications in app.js) - kept
+         separate from #notifications-panel below, which stays the bell's
+         click-to-open history. -->
+    <div id="notification-popup-container"></div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img class="logo-mark" src="static/bank-mark.jpg" alt="">
+                <span class="logo-text">
+                    <span class="logo-name">BanK</span>
+                    <span class="logo-bank">BANCA</span>
+                    <span class="logo-tagline" data-i18n="brand.tagline">CONFORTUL TAU FINANCIAR</span>
+                </span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard" class="icon"></i>
+                    <span data-i18n="common.Prezentare Generală">Prezentare Generală</span>
+                </button>
+                <button class="nav-item" data-view="chat">
+                    <i data-lucide="sparkles" class="icon"></i>
+                    <span data-i18n="common.Asistent AI & Proiecții">Asistent AI & Proiecții</span>
+                </button>
+                <button class="nav-item" data-view="transactions">
+                    <i data-lucide="history" class="icon"></i>
+                    <span data-i18n="common.Toate Tranzacțiile">Toate Tranzacțiile</span>
+                </button>
+                <button class="nav-item" data-view="cards">
+                    <i data-lucide="credit-card" class="icon"></i>
+                    <span data-i18n="common.Cardurile Mele">Cardurile Mele</span>
+                </button>
+                <button class="nav-item" data-view="analytics">
+                    <i data-lucide="trending-up" class="icon"></i>
+                    <span data-i18n="common.Investiții & Bugetare">Investiții & Bugetare</span>
+                </button>
+                <button class="nav-item" data-view="payments">
+                    <i data-lucide="landmark" class="icon"></i>
+                    <span data-i18n="common.Plăți">Plăți</span>
+                </button>
+            </nav>
+            <section class="conversation-history" id="conversation-history" hidden aria-labelledby="conversation-history-title">
+                <div class="conversation-history-header">
+                    <h2 id="conversation-history-title" data-i18n="common.Conversații recente">Conversații recente</h2>
+                </div>
+                <p class="conversation-history-error" id="conversation-history-error" role="alert" hidden></p>
+                <div class="conversation-history-list" id="conversation-history-list"></div>
+            </section>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i data-lucide="search" class="icon"></i>
+                    <input type="text" id="header-search-input" data-i18n-placeholder="common.search_placeholder" placeholder="Caută tranzacții, carduri, contacte...">
+                </div>
+                <div class="user-actions">
+                    <button class="notification-btn" id="notifications-btn"><i data-lucide="bell" class="icon"></i><span class="badge" id="notifications-badge" hidden></span></button>
+
+                    <!-- Auto-hide notifications dropdown: opens on click of the
+                         bell above, closes on outside click or Escape (see
+                         wireNotificationsPanel in app.js). -->
+                    <div class="profile-panel notifications-panel" id="notifications-panel" hidden>
+                        <div class="profile-panel-header">
+                            <div class="profile-panel-name" data-i18n="common.Notificări">Notificări</div>
+                        </div>
+                        <div id="notifications-list">
+                            <div class="empty-state" data-i18n="common.no_notifications">Nicio notificare încă.</div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile" id="user-profile-btn" title="Profilul meu" data-i18n-title="common.Profilul meu">
+                        <div id="user-avatar" class="avatar"></div>
+                        <span id="user-name"></span>
+                    </div>
+                    <button class="logout-btn" id="logout-btn" title="Log out" data-i18n-title="common.Log out" data-i18n-aria-label="common.Log out"><i data-lucide="log-out" class="icon"></i></button>
+
+                    <!-- Auto-hide profile menu: opens on click of the name/avatar
+                         above, closes on outside click or Escape. Each item
+                         redirects to its own dedicated view below, rather than
+                         showing anything inline here (see wireProfilePanel in
+                         app.js). Lives here, not in views-container, so it can
+                         be positioned as a dropdown anchored under the header. -->
+                    <div class="profile-panel" id="profile-panel" hidden>
+                        <div class="profile-panel-header">
+                            <div class="profile-panel-name" id="profile-panel-name"></div>
+                            <div class="profile-panel-email" id="profile-panel-email"></div>
+                        </div>
+
+                        <!-- Revealed only when GET /admin/me succeeds - see
+                             revealAdminLinkIfAdmin() in app.js. Hidden here by
+                             default so a non-admin never sees it flash. -->
+                        <a class="profile-menu-item" id="admin-panel-link" href="admin.html" hidden>
+                            <i data-lucide="shield" class="icon"></i> Panou administrare
+                        </a>
+                        <button type="button" class="profile-menu-item" data-target="avatar">
+                            <i data-lucide="smile" class="icon"></i> <span data-i18n="profile.avatar">Avatar</span>
+                        </button>
+                        <button type="button" class="profile-menu-item" data-target="referral">
+                            <i data-lucide="gift" class="icon"></i> <span data-i18n="profile.referral">Codul meu de referral</span>
+                        </button>
+                        <button type="button" class="profile-menu-item" data-target="change-password">
+                            <i data-lucide="lock" class="icon"></i> <span data-i18n="profile.change_password">Schimbă parola</span>
+                        </button>
+                        <button type="button" class="profile-menu-item" data-target="face-login">
+                            <i data-lucide="scan-face" class="icon"></i> <span data-i18n="profile.face_login">Face Login</span>
+                        </button>
+                        <button type="button" class="profile-menu-item" data-target="documents-to-sign">
+                            <i data-lucide="file-signature" class="icon"></i> <span data-i18n="profile.documents_to_sign">Documente de semnat</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <div class="views-container">
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="view active">
+                    <div class="dashboard-header">
+                        <div class="total-balance-card">
+                            <span class="label" data-i18n="common.Total Balance">Total Balance</span>
+                            <h1 class="balance" id="total-balance">&hellip;</h1>
+                            <div class="actions">
+                                <button class="btn btn-primary" id="open-new-account-btn"><i data-lucide="plus" class="icon"></i> <span data-i18n="common.Cont nou">Cont nou</span></button>
+                                <button class="btn btn-secondary" id="open-transfer-btn"><i data-lucide="send" class="icon"></i> <span data-i18n="common.Transferă">Transferă</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="accounts-section">
+                            <h2 class="section-title" data-i18n="common.Conturile mele">Conturile mele</h2>
+                            <div class="accounts-grid" id="accounts-grid">
+                                <div class="loading-state" data-i18n="common.loading">Se încarcă...</div>
+                            </div>
+                        </div>
+
+                        <div class="transactions-section">
+                            <div class="section-header-row">
+                                <h2 class="section-title" data-i18n="common.Tranzacții Recente">Tranzacții Recente</h2>
+                                <button class="link-btn" id="view-all-transactions-btn" data-i18n="common.Vezi toate">Vezi toate</button>
+                            </div>
+                            <div class="transactions-list" id="transactions-list">
+                                <div class="loading-state" data-i18n="common.loading">Se încarcă...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- All Transactions View (grouped by month) -->
+                <section id="view-transactions" class="view hidden">
+                    <h2 class="view-title" data-i18n="common.Toate Tranzacțiile">Toate Tranzacțiile</h2>
+                    <div id="all-transactions-list">
+                        <div class="loading-state" data-i18n="common.loading">Se încarcă...</div>
+                    </div>
+                </section>
+
+                <!-- AI Chat View -->
+                <section id="view-chat" class="view hidden">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <div class="ai-avatar"><i data-lucide="sparkles"></i></div>
+                            <div class="ai-info">
+                                <h2><span data-i18n="chat.panel_heading">BanK AI Assistant</span></h2>
+                                <span class="status" data-i18n="dynamic.connected_status">Conectat • poate citi conturile și efectua acțiuni simple</span>
+                            </div>
+                            <button class="btn btn-secondary" id="new-conversation-btn" style="margin-left: auto;">
+                                <i data-lucide="plus" class="icon"></i> <span data-i18n="dashboard.Conversație nouă">Conversație nouă</span>
+                            </button>
+                        </div>
+                        <!-- Empty state: one welcome turn. Everything after this
+                             is appended by appendChatBubble() in app.js, so the
+                             markup here matches what that function produces. -->
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai">
+                                <div class="avatar"><i data-lucide="sparkles"></i></div>
+                                <div class="bubble" data-i18n="chat.welcome">Salut! Sunt asistentul tău bancar. Pot să îți verific soldul conturilor și să răspund la întrebări despre bancă. Cu ce te pot ajuta?</div>
+                            </div>
+                        </div>
+                        <div class="document-chip" id="document-chip" hidden></div>
+                        <div class="chat-input-area">
+                            <button class="card-eye-btn" id="chat-attach-btn" type="button" title="Atașează o poză sau PDF cu extrasul de cont (pt. citit un IBAN)" aria-label="Atașează un fișier" data-i18n-title="chat.attach_file_hint" data-i18n-aria-label="chat.attach_file_label"><i data-lucide="paperclip"></i></button>
+                            <input type="file" id="chat-attach-input" accept="image/png,image/jpeg,application/pdf" hidden>
+                            <button class="card-eye-btn" id="document-attach-btn" type="button" title="Atașează un document PDF pentru a pune întrebări despre el" aria-label="Atașează un document" data-i18n-title="chat.attach_document_hint" data-i18n-aria-label="chat.attach_document_label"><i data-lucide="file-text"></i></button>
+                            <input type="file" id="document-attach-input" accept="application/pdf" hidden>
+                            <input type="text" data-i18n-placeholder="common.chat_placeholder" placeholder="Întreabă asistentul AI..." class="chat-input" id="chat-input">
+                            <button class="card-eye-btn chat-mic-btn" id="chat-mic-btn" type="button" title="Dictează mesajul" aria-label="Dictează mesajul" aria-pressed="false" data-i18n-title="chat.voice_input_label" data-i18n-aria-label="chat.voice_input_label"><i data-lucide="mic"></i></button>
+                            <button class="btn-send" onclick="sendMessage()">➤</button>
+                        </div>
+                        <p class="field-hint" id="chat-attach-status" hidden></p>
+                        <p class="field-hint" id="document-attach-status" hidden></p>
+                    </div>
+                </section>
+
+                <!-- Cards Management View -->
+                <section id="view-cards" class="view hidden">
+                    <h2 class="view-title" data-i18n="common.Cardurile Mele">Cardurile Mele</h2>
+                    <div class="cards-carousel" id="cards-list">
+                        <div class="loading-state">Se încarcă...</div>
+                    </div>
+                    <div class="cards-actions">
+                        <button class="btn btn-primary" id="open-new-card-btn"><i data-lucide="sparkles" class="icon"></i> <span data-i18n="dashboard.Generează Card Virtual">Generează Card Virtual</span></button>
+                        <button class="btn btn-secondary" id="open-card-order-btn"><i data-lucide="credit-card" class="icon"></i> <span data-i18n="dashboard.Comandă Card Fizic">Comandă Card Fizic</span></button>
+                    </div>
+                </section>
+
+                <!-- Analytics & Insights View -->
+                <section id="view-analytics" class="view hidden">
+                    <h2 class="view-title" data-i18n="common.Investiții & Bugetare">Investiții & Bugetare</h2>
+                    <div class="analytics-grid">
+                        <div class="chart-card">
+                            <h3 data-i18n="dashboard.Cheltuieli pe Categorii (Luna curentă)">Cheltuieli pe Categorii (Luna curentă)</h3>
+                            <div class="donut-chart-container" id="spending-category-container">
+                                <div class="spending-donut-wrap" id="spending-category-donut"></div>
+                                <div class="legend" id="spending-category-legend">
+                                    <div class="loading-state">Se încarcă...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pots-card">
+                            <h3 data-i18n="dashboard.Deschide un cont nou">Deschide un cont nou</h3>
+                            <div class="savings-product-picker">
+                                <button type="button" class="savings-product-btn" id="open-savings-btn">
+                                    <i data-lucide="piggy-bank" class="icon"></i>
+                                    <div class="savings-product-btn-title" data-i18n="dashboard.Cont de economii">Cont de economii</div>
+                                    <div class="savings-product-btn-rate" id="savings-rate-label">…</div>
+                                    <div class="savings-product-btn-desc" data-i18n="dashboard.Flexibil - retragi oricând">Flexibil - retragi oricând</div>
+                                </button>
+                                <button type="button" class="savings-product-btn" id="open-term-deposit-btn">
+                                    <i data-lucide="lock" class="icon"></i>
+                                    <div class="savings-product-btn-title" data-i18n="dashboard.Cont cu dobândă fixă">Cont cu dobândă fixă</div>
+                                    <div class="savings-product-btn-rate" id="term-deposit-rate-label">…</div>
+                                    <div class="savings-product-btn-desc" data-i18n="dashboard.Alegi perioada - rată mai mare">Alegi perioada - rată mai mare</div>
+                                </button>
+                            </div>
+
+                            <h3 style="margin-top: 30px;" data-i18n="dashboard.Conturile mele de economii">Conturile mele de economii</h3>
+                            <div id="savings-accounts-list" class="pots-list">
+                                <div class="loading-state">Se încarcă...</div>
+                            </div>
+
+                            <div class="pots-card-header" style="margin-top: 30px;">
+                                <h3 data-i18n="dashboard.scheduled_title">Transferuri programate</h3>
+                                <button type="button" class="btn-icon-add" id="open-scheduled-transfer-btn" title="Programează un transfer" aria-label="Programează un transfer" data-i18n-title="scheduled.title" data-i18n-aria-label="scheduled.title"><i data-lucide="plus"></i></button>
+                            </div>
+                            <div id="scheduled-transfers-list" class="pots-list">
+                                <div class="loading-state">Se încarcă...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payments (IBAN-to-IBAN, cross-user) View -->
+                <section id="view-payments" class="view hidden">
+                    <h2 class="view-title" data-i18n="common.Plăți">Plăți</h2>
+                    <div class="analytics-grid">
+                        <div class="chart-card">
+                            <h3 data-i18n="payments.Trimite bani printr-un IBAN">Trimite bani printr-un IBAN</h3>
+
+                            <label class="field-label" for="payments-account">Din contul</label>
+                            <select class="field-input" id="payments-account"></select>
+
+                            <div class="my-iban-box">
+                                <span class="iban-value" id="payments-my-iban">—</span>
+                                <button type="button" class="card-eye-btn" id="copy-my-iban-btn" title="Copiază IBAN-ul" data-i18n-title="payments.copy_iban_title"><i data-lucide="copy"></i></button>
+                            </div>
+
+                            <div class="auth-error" id="payments-error" hidden></div>
+                            <div class="auth-success" id="payments-success" hidden></div>
+
+                            <form id="payments-form">
+                                <label class="field-label" for="payments-iban">IBAN destinatar</label>
+                                <div class="iban-input-row">
+                                    <input class="field-input" type="text" id="payments-iban" required placeholder="RO49 BANK ...">
+                                    <button type="button" class="card-eye-btn" id="iban-scan-btn" title="Scanează IBAN dintr-o poză sau PDF" aria-label="Scanează IBAN dintr-o poză sau PDF" data-i18n-title="payments.scan_iban_hint" data-i18n-aria-label="payments.scan_iban_hint"><i data-lucide="scan-line"></i></button>
+                                </div>
+                                <input type="file" id="iban-scan-input" accept="image/png,image/jpeg,application/pdf" hidden>
+                                <p class="field-hint" id="iban-scan-status" hidden></p>
+                                <p class="field-hint" id="payments-iban-holder"></p>
+
+                                <label class="field-label" for="payments-beneficiary">Nume beneficiar</label>
+                                <input class="field-input" type="text" id="payments-beneficiary" required>
+
+                                <label class="field-label" for="payments-amount">Sumă</label>
+                                <input class="field-input" type="number" id="payments-amount" min="0.01" step="0.01" required>
+
+                                <label class="field-label" for="payments-description">Descriere <span class="field-optional">(opțional)</span></label>
+                                <input class="field-input" type="text" id="payments-description">
+
+                                <label class="field-label" style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+                                    <input type="checkbox" id="payments-save-beneficiary" checked style="width: auto;">
+                                    Salvează acest beneficiar în Contactele mele
+                                </label>
+
+                                <div class="modal-actions">
+                                    <button type="submit" class="btn btn-primary">Trimite plata</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="pots-card">
+                            <div class="pots-card-header">
+                                <h3 data-i18n="payments.Contactele mele">Contactele mele</h3>
+                                <button type="button" class="btn-icon-add" id="add-beneficiary-btn" title="Adaugă contact" aria-label="Adaugă contact" data-i18n-title="payments.add_contact" data-i18n-aria-label="payments.add_contact"><i data-lucide="plus"></i></button>
+                            </div>
+                            <form id="add-beneficiary-form" class="inline-add-form" hidden>
+                                <input type="text" class="field-input" id="add-beneficiary-name" data-i18n-placeholder="payments.name" placeholder="Nume" required>
+                                <input type="text" class="field-input" id="add-beneficiary-iban" data-i18n-placeholder="payments.iban" placeholder="IBAN" required>
+                                <input type="url" class="field-input" id="add-beneficiary-website" data-i18n-placeholder="payments.website" placeholder="Website (opțional, ex. pt. abonamente)">
+                                <label class="field-label" style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="add-beneficiary-is-subscription" style="width: auto;">
+                                    <span data-i18n="payments.subscription">Este un abonament (Netflix, Spotify etc.)</span>
+                                </label>
+                                <button type="submit" class="btn btn-primary" data-i18n="payments.save">Salvează</button>
+                            </form>
+                            <div class="auth-error" id="add-beneficiary-error" hidden></div>
+                            <div id="beneficiaries-list" class="pots-list">
+                                <div class="loading-state">Se încarcă...</div>
+                            </div>
+
+                            <h3 style="margin-top: 30px;" data-i18n="payments.Istoric plăți">Istoric plăți</h3>
+                            <div id="payments-list" class="pots-list">
+                                <div class="loading-state">Se încarcă...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile menu destinations: reached only via the header
+                     dropdown (profile-panel), never from the sidebar. -->
+                <section id="view-avatar" class="view hidden">
+                    <button class="btn btn-secondary back-to-dashboard-btn" style="margin-bottom: 24px;">
+                        <i data-lucide="arrow-left" class="icon"></i> <span data-i18n="profile.back">Înapoi</span>
+                    </button>
+                    <h2 class="view-title" data-i18n="profile.avatar">Avatar</h2>
+                    <div class="standalone-card centered">
+                        <div class="profile-avatar-preview" id="profile-avatar-preview">🏦</div>
+                        <p class="profile-subtitle" data-i18n="profile.choose_avatar">Alege o emoji pentru avatarul tău</p>
+                        <div class="emoji-grid" id="emoji-grid"></div>
+                    </div>
+                </section>
+
+                <section id="view-referral" class="view hidden">
+                    <button class="btn btn-secondary back-to-dashboard-btn" style="margin-bottom: 24px;">
+                        <i data-lucide="arrow-left" class="icon"></i> <span data-i18n="profile.back">Înapoi</span>
+                    </button>
+                    <h2 class="view-title" data-i18n="profile.referral">Codul meu de referral</h2>
+                    <div class="standalone-card">
+                        <div class="my-iban-box">
+                            <span class="iban-value" id="referral-code-value">&hellip;</span>
+                            <button type="button" class="card-eye-btn" id="copy-referral-code-btn" title="Copiază codul" data-i18n-title="payments.copy_referral_title"><i data-lucide="copy"></i></button>
+                        </div>
+                        <p class="field-hint" data-i18n="profile.referral_hint">Cine se înregistrează cu acest cod primește 500 RON la primul cont.</p>
+                    </div>
+                </section>
+
+                <section id="view-change-password" class="view hidden">
+                    <button class="btn btn-secondary back-to-dashboard-btn" style="margin-bottom: 24px;">
+                        <i data-lucide="arrow-left" class="icon"></i> <span data-i18n="profile.back">Înapoi</span>
+                    </button>
+                    <h2 class="view-title" data-i18n="profile.change_password">Schimbă parola</h2>
+                    <div class="standalone-card">
+                        <div class="auth-error" id="change-password-error" hidden></div>
+                        <div class="auth-success" id="change-password-success" hidden></div>
+                        <form id="change-password-form">
+                            <label class="field-label" for="current-password" data-i18n="profile.current_password">Parola curentă</label>
+                            <div class="password-field-wrapper">
+                                <input class="field-input" type="password" id="current-password" required autocomplete="current-password">
+                                <button type="button" class="password-toggle-btn" data-target="current-password" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                            </div>
+
+                            <label class="field-label" for="new-password-profile" data-i18n="profile.new_password">Parolă nouă</label>
+                            <div class="password-field-wrapper">
+                                <input class="field-input" type="password" id="new-password-profile" minlength="8" required autocomplete="new-password">
+                                <button type="button" class="password-toggle-btn" data-target="new-password-profile" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                            </div>
+
+                            <label class="field-label" for="new-password-profile-confirm" data-i18n="profile.confirm_password">Confirmă parola nouă</label>
+                            <div class="password-field-wrapper">
+                                <input class="field-input" type="password" id="new-password-profile-confirm" minlength="8" required autocomplete="new-password">
+                                <button type="button" class="password-toggle-btn" data-target="new-password-profile-confirm" tabindex="-1" aria-label="Arată parola" data-i18n-aria-label="profile.show_password"><i data-lucide="eye"></i></button>
+                            </div>
+
+                            <button class="btn btn-primary" type="submit" style="margin-top: 16px;" data-i18n="profile.change_password">Schimbă parola</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="view-face-login" class="view hidden">
+                    <button class="btn btn-secondary back-to-dashboard-btn" style="margin-bottom: 24px;">
+                        <i data-lucide="arrow-left" class="icon"></i> <span data-i18n="profile.back">Înapoi</span>
+                    </button>
+                    <h2 class="view-title" data-i18n="profile.face_login">Face Login</h2>
+                    <div class="standalone-card centered">
+                        <p class="field-hint" id="face-status-text" style="margin-bottom: 20px;" data-i18n="profile.checking_status">Se verifică...</p>
+
+                        <div class="face-camera-wrap">
+                            <video id="face-video" autoplay playsinline muted></video>
+                            <canvas id="face-canvas" hidden></canvas>
+                        </div>
+
+                        <p class="field-hint" id="face-enroll-blink-hint" style="margin-top: 8px;" hidden data-i18n="face_confirm.blink_now">Clipește acum...</p>
+                        <div class="auth-error" id="face-enroll-error" hidden></div>
+                        <div class="auth-success" id="face-enroll-success" hidden></div>
+
+                        <div class="modal-actions" style="margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary" id="face-start-camera-btn" data-i18n="profile.start_camera">Pornește camera</button>
+                            <button type="button" class="btn btn-primary" id="face-capture-btn" hidden data-i18n="profile.capture_activate">Capturează și activează</button>
+                        </div>
+
+                        <button type="button" class="card-cancel-btn" id="face-remove-btn" hidden style="margin-top: 16px;" data-i18n="profile.disable_face_login">Dezactivează Face Login</button>
+                    </div>
+                </section>
+
+                <section id="view-documents-to-sign" class="view hidden">
+                    <button class="btn btn-secondary back-to-dashboard-btn" style="margin-bottom: 24px;">
+                        <i data-lucide="arrow-left" class="icon"></i> <span data-i18n="profile.back">Înapoi</span>
+                    </button>
+                    <h2 class="view-title">Documente de semnat</h2>
+                    <div id="documents-to-sign-list" class="documents-to-sign-list"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- New account modal -->
+    <div class="modal-overlay" id="new-account-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Cont nou</h3>
+                <button class="modal-close" id="close-new-account-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="new-account-error" hidden></div>
+            <form id="new-account-form">
+                <label class="field-label" for="new-account-name" data-i18n="common.account_name_label">Nume cont</label>
+                <input class="field-input" type="text" id="new-account-name" required data-i18n-placeholder="new_account.name_placeholder" placeholder="ex. Cont Curent">
+
+                <label class="field-label" for="new-account-currency" data-i18n="common.currency_label">Monedă</label>
+                <select class="field-input" id="new-account-currency">
+                    <option value="RON">RON</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                </select>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-new-account" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="common.create">Creează</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account statement download modal - opened by openStatementModal() from
+         the "extras de cont" icon on each account card in app.js. Downloads
+         GET /accounts/{id}/statement/pdf as an actual file (see
+         downloadStatement()), not a preview - the endpoint sets
+         Content-Disposition: attachment. -->
+    <div class="modal-overlay" id="statement-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="statement.title">Extras de cont</h3>
+                <button class="modal-close" id="close-statement-modal"><i data-lucide="x"></i></button>
+            </div>
+            <p class="field-hint" id="statement-account-name" style="margin-bottom: 16px;"></p>
+            <div class="auth-error" id="statement-error" hidden></div>
+            <form id="statement-form">
+                <label class="field-label" for="statement-period-start" data-i18n="statement.from_label">De la</label>
+                <input class="field-input" type="date" id="statement-period-start" required>
+
+                <label class="field-label" for="statement-period-end" data-i18n="statement.to_label">Până la</label>
+                <input class="field-input" type="date" id="statement-period-end" required>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-statement" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" id="statement-submit-btn" data-i18n="statement.download_button">Descarcă PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New savings / term-deposit account modal -->
+    <div class="modal-overlay" id="new-savings-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="new-savings-modal-title" data-i18n="savings.new_savings_title">Cont de economii nou</h3>
+                <button class="modal-close" id="close-new-savings-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="new-savings-error" hidden></div>
+            <form id="new-savings-form">
+                <label class="field-label" for="new-savings-name" data-i18n="common.account_name_label">Nume cont</label>
+                <input class="field-input" type="text" id="new-savings-name" required data-i18n-placeholder="savings.account_name_placeholder" placeholder="ex. Economii vacanță">
+
+                <label class="field-label" for="new-savings-currency" data-i18n="common.currency_label">Monedă</label>
+                <select class="field-input" id="new-savings-currency">
+                    <option value="RON">RON</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                </select>
+
+                <div id="new-savings-term-row" hidden>
+                    <label class="field-label" for="new-savings-term" data-i18n="savings.period_label">Perioadă</label>
+                    <select class="field-input" id="new-savings-term"></select>
+                </div>
+
+                <div id="new-savings-projection-row" hidden>
+                    <label class="field-label" for="new-savings-projection-amount"><span data-i18n="savings.projection_amount_label">Sumă estimativă de depus</span> <span class="field-optional" data-i18n="savings.projection_amount_note">(doar pentru estimare)</span></label>
+                    <input class="field-input" type="number" id="new-savings-projection-amount" min="0" step="0.01" data-i18n-placeholder="savings.projection_amount_placeholder" placeholder="ex. 5000">
+                </div>
+
+                <p class="field-hint" id="new-savings-rate-hint"></p>
+                <div class="savings-projection-box" id="new-savings-projection-box" hidden></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-new-savings" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="savings.open_account_button">Deschide contul</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer modal -->
+    <div class="modal-overlay" id="transfer-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="transfer.title">Transferă între conturile tale</h3>
+                <button class="modal-close" id="close-transfer-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="transfer-error" hidden></div>
+            <form id="transfer-form">
+                <label class="field-label" for="transfer-from" data-i18n="scheduled.from_account_label">Din contul</label>
+                <select class="field-input" id="transfer-from" required></select>
+
+                <label class="field-label" for="transfer-to" data-i18n="transfer.to_account_label">În contul</label>
+                <select class="field-input" id="transfer-to" required></select>
+
+                <label class="field-label" for="transfer-amount" data-i18n="common.amount_label">Sumă</label>
+                <input class="field-input" type="number" id="transfer-amount" min="0.01" step="0.01" required>
+
+                <label class="field-label" for="transfer-description"><span data-i18n="common.description_label">Descriere</span> <span class="field-optional" data-i18n="card_modal.optional">(opțional)</span></label>
+                <input class="field-input" type="text" id="transfer-description">
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-transfer" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="common.Confirmă">Confirmă</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scheduled/recurring transfer modal -->
+    <div class="modal-overlay" id="scheduled-transfer-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="scheduled.title">Programează un transfer</h3>
+                <button class="modal-close" id="close-scheduled-transfer-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="scheduled-transfer-error" hidden></div>
+            <form id="scheduled-transfer-form">
+                <label class="field-label" for="scheduled-transfer-from" data-i18n="scheduled.from_account_label">Din contul</label>
+                <select class="field-input" id="scheduled-transfer-from" required></select>
+
+                <label class="field-label" for="scheduled-transfer-to" data-i18n="transfer.to_account_label">În contul</label>
+                <select class="field-input" id="scheduled-transfer-to" required></select>
+
+                <label class="field-label" for="scheduled-transfer-amount" data-i18n="common.amount_label">Sumă</label>
+                <input class="field-input" type="number" id="scheduled-transfer-amount" min="0.01" step="0.01" required>
+
+                <label class="field-label" for="scheduled-transfer-start-days" data-i18n="scheduled.start_in_days_label">Peste câte zile începe</label>
+                <input class="field-input" type="number" id="scheduled-transfer-start-days" min="0" step="1" value="0" required>
+
+                <label class="field-label" for="scheduled-transfer-frequency" data-i18n="scheduled.frequency_label">Frecvență</label>
+                <select class="field-input" id="scheduled-transfer-frequency">
+                    <option value="" data-i18n="dynamic.scheduled_once">O singură dată</option>
+                    <option value="weekly" data-i18n="dynamic.scheduled_weekly">Săptămânal</option>
+                    <option value="monthly" data-i18n="dynamic.scheduled_monthly">Lunar</option>
+                </select>
+
+                <label class="field-label" for="scheduled-transfer-description"><span data-i18n="common.description_label">Descriere</span> <span class="field-optional" data-i18n="card_modal.optional">(opțional)</span></label>
+                <input class="field-input" type="text" id="scheduled-transfer-description">
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-scheduled-transfer" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="scheduled.submit_button">Programează</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New card modal -->
+    <div class="modal-overlay" id="new-card-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="card_modal.new_virtual_title">Card virtual nou</h3>
+                <button class="modal-close" id="close-new-card-modal" data-i18n-aria-label="card_modal.close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="new-card-error" hidden></div>
+            <form id="new-card-form">
+                <label class="field-label" for="new-card-account" data-i18n="card_modal.linked_account">Cont asociat</label>
+                <select class="field-input" id="new-card-account" required></select>
+
+                <label class="field-label" for="new-card-limit"><span data-i18n="card_modal.spending_limit">Limită de cheltuieli</span> <span class="field-optional" data-i18n="card_modal.optional">(opțional)</span></label>
+                <input class="field-input" type="number" id="new-card-limit" min="0.01" step="0.01" data-i18n-placeholder="card_modal.limit_placeholder">
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-new-card" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="card_modal.create">Generează</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Card order modal -->
+    <div class="modal-overlay" id="card-order-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="card_modal.physical_title">Comandă Card Fizic</h3>
+                <button class="modal-close" id="close-card-order-modal" data-i18n-aria-label="card_modal.close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="card-order-error" hidden></div>
+            <form id="card-order-form">
+                <label class="field-label" for="card-order-account" data-i18n="card_modal.linked_account">Cont asociat</label>
+                <select class="field-input" id="card-order-account" required></select>
+
+                <label class="field-label" for="card-order-card-choice">Card</label>
+                <select class="field-input" id="card-order-card-choice"></select>
+                <p class="field-hint" id="card-order-card-hint" hidden></p>
+
+                <label class="field-label" for="card-order-name" data-i18n="card_modal.full_name">Nume complet</label>
+                <input class="field-input" type="text" id="card-order-name" required data-i18n-placeholder="card_modal.full_name_placeholder" placeholder="ex. Popescu Andrei">
+
+                <label class="field-label" for="card-order-phone" data-i18n="card_modal.phone">Telefon</label>
+                <input class="field-input" type="tel" id="card-order-phone" required data-i18n-placeholder="card_modal.phone_placeholder" placeholder="ex. 07xxxxxxxx">
+
+                <label class="field-label" for="card-order-address" data-i18n="card_modal.address">Adresă</label>
+                <input class="field-input" type="text" id="card-order-address" required data-i18n-placeholder="card_modal.address_placeholder" placeholder="Stradă, număr, bloc, apartament">
+
+                <label class="field-label" for="card-order-city" data-i18n="card_modal.city">Oraș</label>
+                <input class="field-input" type="text" id="card-order-city" required>
+
+                <label class="field-label" for="card-order-postal" data-i18n="card_modal.postal_code">Cod poștal</label>
+                <input class="field-input" type="text" id="card-order-postal" required>
+
+                <label class="field-label" for="card-order-country" data-i18n="card_modal.country">Țară</label>
+                <input class="field-input" type="text" id="card-order-country" required value="România" data-default-country="true">
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-card-order" data-i18n="common.Anulează">Anulează</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="card_modal.submit_order">Trimite comanda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Face confirmation modal - step-up auth for transfers/payments over
+         the threshold (see backend/app/modules/face_auth::enforce_face_
+         confirmation). Opened by requestFaceConfirmationToken() in app.js
+         whenever a transfer/payment submission comes back 428. -->
+    <div class="modal-overlay" id="face-confirm-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="face-confirm-title" data-i18n="face_confirm.title">Confirmă cu Face ID</h3>
+                <button class="modal-close" id="close-face-confirm-modal"><i data-lucide="x"></i></button>
+            </div>
+            <p class="field-hint" id="face-confirm-reason" style="margin-bottom: 16px;" data-i18n="face_confirm.default_reason">
+                Suma depășește pragul de confirmare - verifică-ți identitatea prin cameră.
+            </p>
+            <div class="auth-error" id="face-confirm-error" hidden></div>
+
+            <div id="face-confirm-camera-section">
+                <div class="face-camera-wrap">
+                    <video id="face-confirm-video" autoplay playsinline muted></video>
+                    <canvas id="face-confirm-canvas" hidden></canvas>
+                </div>
+                <!-- Shown only while a capture burst is running (see
+                     captureFaceBurst in api.js) - the liveness check needs a
+                     real blink, not just a photo, so the user is told to
+                     provide one. -->
+                <p class="field-hint" id="face-confirm-blink-hint" style="margin-top: 8px;" hidden data-i18n="face_confirm.blink_now">Clipește acum...</p>
+                <!-- Revealed only after MAX_FACE_ATTEMPTS failed captures in
+                     this same modal session (see requestFaceConfirmationToken
+                     in app.js) - and only for callers that opted into the
+                     fallback at all (allowPasswordFallback: true). -->
+                <button type="button" class="link-btn" id="face-confirm-use-password" style="margin-top: 12px;" hidden data-i18n="face_confirm.use_password_instead">Folosește parola în loc</button>
+            </div>
+
+            <div id="face-confirm-password-section" hidden>
+                <label class="field-label" for="face-confirm-password-input" data-i18n="face_confirm.password_label">Parolă</label>
+                <input class="field-input" type="password" id="face-confirm-password-input" autocomplete="current-password">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancel-face-confirm" data-i18n="common.Anulează">Anulează</button>
+                <button type="button" class="btn btn-primary" id="capture-face-confirm" data-i18n="common.Confirmă">Confirmă</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription price-increase block - opened by submitPayment() in
+         app.js whenever a payment comes back 409 subscription_price_increase
+         (see backend/app/modules/payments/service.py::
+         _detect_subscription_price_increase). -->
+    <div class="modal-overlay" id="price-increase-modal" hidden>
+        <div class="modal price-increase-modal">
+            <div class="price-increase-icon"><i data-lucide="trending-up"></i></div>
+            <h3 class="price-increase-title" data-i18n="price_increase.title">Prețul abonamentului a crescut</h3>
+            <p class="price-increase-message">
+                <span id="price-increase-merchant" data-i18n-ignore>Acest abonament</span> <span data-i18n="price_increase.price_raised_suffix">și-a mărit prețul</span>
+            </p>
+            <div class="price-increase-amounts">
+                <span class="price-increase-old" id="price-increase-old"></span>
+                <i data-lucide="arrow-right" class="icon"></i>
+                <span class="price-increase-new" id="price-increase-new"></span>
+            </div>
+            <p class="price-increase-blocked-note" data-i18n="price_increase.blocked_note">Am blocat această plată.</p>
+            <a class="price-increase-website-link" id="price-increase-website-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
+                <i data-lucide="external-link" class="icon"></i> <span data-i18n="price_increase.cancel_subscription_link">Mergi să anulezi abonamentul</span>
+            </a>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="price-increase-cancel" data-i18n="price_increase.cancel_payment_button">Anulează plata</button>
+                <button type="button" class="btn btn-primary" id="price-increase-confirm" data-i18n="price_increase.continue_anyway_button">Continuă oricum</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleek in-app replacement for window.confirm() (see showConfirmDialog
+         in app.js) - a generic, animated yes/no dialog with a warning icon
+         and a soft cancel / danger-red confirm button pair. Currently wired
+         to conversation deletion (see deleteConversation), but built as a
+         reusable component. -->
+    <div class="modal-overlay confirm-dialog-overlay" id="confirm-dialog-overlay" hidden>
+        <div class="modal confirm-dialog">
+            <div class="confirm-dialog-icon"><i data-lucide="triangle-alert"></i></div>
+            <h3 class="confirm-dialog-title" id="confirm-dialog-title"></h3>
+            <p class="confirm-dialog-message" id="confirm-dialog-message"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="confirm-dialog-cancel"></button>
+                <button type="button" class="btn btn-danger" id="confirm-dialog-confirm"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sleek in-app replacement for window.prompt() (see showPromptDialog
+         in app.js) - same shell as #confirm-dialog-overlay above, but with a
+         neutral (non-danger) icon/button and a single labeled input instead
+         of a plain yes/no choice. Reusable; currently wired to the card
+         spending-limit editor. -->
+    <div class="modal-overlay confirm-dialog-overlay" id="prompt-dialog-overlay" hidden>
+        <div class="modal confirm-dialog prompt-dialog">
+            <div class="confirm-dialog-icon prompt-dialog-icon"><i data-lucide="sliders-horizontal"></i></div>
+            <h3 class="confirm-dialog-title" id="prompt-dialog-title"></h3>
+            <p class="confirm-dialog-message" id="prompt-dialog-message"></p>
+            <form id="prompt-dialog-form" class="prompt-dialog-form">
+                <div class="prompt-dialog-input-wrap">
+                    <input class="field-input" id="prompt-dialog-input" type="text" inputmode="decimal" autocomplete="off">
+                    <span class="prompt-dialog-suffix" id="prompt-dialog-suffix" hidden></span>
+                </div>
+                <p class="auth-error" id="prompt-dialog-error" hidden></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="prompt-dialog-cancel"></button>
+                    <button type="submit" class="btn btn-primary" id="prompt-dialog-confirm"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Step-up auth modal - confirms an AI-proposed action (see
+         app/modules/chat/proposals_service.py) with Face ID or password
+         before the backend executes it. Opened by openStepUpModal() in
+         app.js from a propose_* proposal card's "Confirmă" button. -->
+    <div class="modal-overlay" id="step-up-auth-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="step_up.title">Confirmă identitatea</h3>
+                <button class="modal-close" id="close-step-up-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="auth-error" id="step-up-error" hidden></div>
+
+            <div class="step-up-option">
+                <button type="button" class="btn btn-primary" id="step-up-face-btn" style="width:100%;">
+                    <i data-lucide="scan-face"></i> <span data-i18n="step_up.face_button">Confirmare cu Face ID</span>
+                </button>
+            </div>
+
+            <div class="step-up-divider"><span data-i18n="common.or">sau</span></div>
+
+            <form id="step-up-password-form" class="step-up-option">
+                <label class="field-label" for="step-up-password-input" data-i18n="step_up.password_label">Confirmare cu parolă</label>
+                <input class="field-input" type="password" id="step-up-password-input"
+                       data-i18n-placeholder="step_up.password_placeholder" placeholder="Introdu parola contului" required autocomplete="current-password">
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-secondary" style="width:100%;" data-i18n="common.Confirmă">Confirmă</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin-document sign modal - the stronger OTP+Face confirm for a
+         document an admin generated and sent (see backend
+         app/modules/esign/service.py::confirm_admin_document). Opened by
+         handleSignAdminDocument() in app.js from "Documente de semnat".
+         Unlike step-up-auth-modal above, BOTH factors are required, one
+         after the other: the OTP code entered here, then Face ID captured
+         via the SAME requestFaceConfirmationToken()/#face-confirm-modal
+         flow the ordinary step-up uses. -->
+    <div class="modal-overlay" id="admin-doc-sign-modal" hidden>
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Semnare document oficial</h3>
+                <button class="modal-close" id="close-admin-doc-sign-modal"><i data-lucide="x"></i></button>
+            </div>
+            <p class="field-hint" id="admin-doc-sign-status">Se trimite codul de semnare...</p>
+            <div class="auth-error" id="admin-doc-sign-error" hidden></div>
+            <form id="admin-doc-sign-otp-form">
+                <label class="field-label" for="admin-doc-sign-otp-input">Cod de semnare (6 cifre)</label>
+                <input class="field-input" type="text" inputmode="numeric" pattern="[0-9]{6}"
+                       maxlength="6" id="admin-doc-sign-otp-input" placeholder="000000" required
+                       autocomplete="one-time-code">
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="admin-doc-sign-resend-btn">Retrimite codul</button>
+                    <button type="submit" class="btn btn-primary" id="admin-doc-sign-continue-btn">Continuă cu Face ID</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lightweight toast for background action feedback (proposal
+         confirmed/rejected) - see showToast() in app.js. -->
+    <div id="toast-container" aria-live="polite"></div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="language.js"></script>
+    <script src="theme.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

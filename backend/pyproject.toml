@@ -1,0 +1,90 @@
+[project]
+name = "bank-backend"
+version = "0.1.0"
+description = "BanK backend API (banking core + AI agent layer)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "supabase>=2.31.0",
+    "pydantic[email]>=2.9",
+    "pydantic-settings>=2.5",
+    "bcrypt>=4.2",
+    # AI layer (app/ai): Azure OpenAI is reached through the OpenAI SDK.
+    "openai>=1.40",
+    # Required by FastAPI's UploadFile/File(...) to parse multipart/form-data.
+    "python-multipart>=0.0.12",
+    # Talks to vision-service (see app/core/vision_client.py) - OCR and
+    # face embeddings run in that container, which is why pytesseract/
+    # face-recognition are not here.
+    "httpx>=0.27",
+    # PDF GENERATION (app/modules/admin/document_template.py) - composing a
+    # new PDF from scratch, not reading one, so this doesn't need the native
+    # OCR toolchain that motivated moving pymupdf's other use (text
+    # extraction, still in vision-service) out of this image.
+    "pymupdf>=1.24",
+    # app/ai/knowledge: RAG ingestion for the docs agent. Document
+    # Intelligence extracts structured text (tables as rows, not flattened
+    # prose) from a PDF; embeddings + storage reuse Azure OpenAI (via
+    # `openai` above) and Supabase's pgvector (via `supabase` above) - no
+    # extra dependency needed for either of those two.
+    "azure-ai-documentintelligence>=1.0.0",
+    # e-Sign (app/modules/esign): Ed25519 detached signatures over uploaded
+    # documents. Not already a transitive dependency of anything above.
+    "cryptography>=43",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    # TEST INPUT GENERATION ONLY - not used by any code under app/. Renders
+    # PNGs to feed OCR-adjacent upload endpoints; pymupdf itself moved to the
+    # main dependency list above once app/modules/admin/document_template.py
+    # started using it for real.
+    "Pillow>=10.4",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+# A's banking tests are async; [B]'s AI tests under tests/ai are plain sync
+# functions, which "auto" leaves alone.
+asyncio_mode = "auto"
+# One testpath covers both: tests/unit, tests/integration and tests/ai.
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom is `param: X = Depends(get_x)` /
+# Header(...) / Query(...) / etc. - a function call in a default argument
+# is how it's meant to be used, not the mutable-default-argument footgun
+# B008 exists to catch.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Header",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Cookie",
+    "fastapi.Security",
+    "fastapi.File",
+]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true

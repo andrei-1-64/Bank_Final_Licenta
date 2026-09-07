@@ -1,0 +1,33 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-check/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# A stray second clone of this repo was once checked out at ./BanK/ and was
+# neither tracked nor ignored - one `git add .` away from being committed.
+# Never commit a nested clone of ourselves.
+/BanK/
+
+# Generated from backend/knowledge_base/*.html by
+# backend/app/ai/knowledge/pdf_export.py - derived, regenerated on ingest,
+# not source of truth.
+backend/knowledge_base/*.pdf

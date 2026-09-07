@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>BanK - Ghid de produse și comisioane</title>
+<style>
+    /* Print-first: this file exists to be exported as a PDF (Ctrl+P >
+       "Save as PDF") and fed to Azure Document Intelligence as RAG source
+       material. Tables are deliberate - prebuilt-layout extracts them as
+       structured rows/columns, which chunk far better than prose. */
+    @page {
+        size: A4;
+        margin: 18mm 16mm;
+    }
+
+    body {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        color: #1a1a1a;
+        max-width: 178mm;
+        margin: 0 auto;
+        padding: 10mm;
+    }
+
+    header.doc-header {
+        border-bottom: 3px solid #0d6b5f;
+        padding-bottom: 12px;
+        margin-bottom: 28px;
+    }
+
+    .brand {
+        font-size: 26pt;
+        font-weight: bold;
+        color: #0d6b5f;
+        letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+        font-size: 9pt;
+        letter-spacing: 2px;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .doc-meta {
+        margin-top: 10px;
+        font-size: 9pt;
+        color: #555;
+    }
+
+    h1 {
+        font-size: 17pt;
+        color: #0d6b5f;
+        margin: 0 0 4px 0;
+    }
+
+    h2 {
+        font-size: 13pt;
+        color: #0d6b5f;
+        border-bottom: 1px solid #d0d0d0;
+        padding-bottom: 4px;
+        margin-top: 26px;
+        page-break-after: avoid;
+    }
+
+    h3 {
+        font-size: 11pt;
+        margin-top: 18px;
+        margin-bottom: 6px;
+        page-break-after: avoid;
+    }
+
+    p { margin: 8px 0; text-align: justify; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 16px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+    }
+
+    th {
+        background-color: #0d6b5f;
+        color: #fff;
+        text-align: left;
+        padding: 7px 9px;
+        font-weight: bold;
+    }
+
+    td {
+        padding: 6px 9px;
+        border-bottom: 1px solid #ddd;
+        vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background-color: #f6f8f8; }
+
+    .note {
+        background-color: #f0f6f5;
+        border-left: 4px solid #0d6b5f;
+        padding: 9px 13px;
+        margin: 14px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+    }
+
+    .disclaimer {
+        margin-top: 32px;
+        padding-top: 12px;
+        border-top: 1px solid #ccc;
+        font-size: 8.5pt;
+        color: #666;
+        font-style: italic;
+    }
+
+    ul { margin: 8px 0; padding-left: 22px; }
+    li { margin: 4px 0; }
+
+    .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+    <div class="brand">BanK.</div>
+    <div class="brand-sub">Confortul tău financiar</div>
+    <div class="doc-meta">
+        Document: GHID-PC-2026-01 &nbsp;|&nbsp; Versiune 4.2 &nbsp;|&nbsp;
+        În vigoare de la: 1 ianuarie 2026 &nbsp;|&nbsp; Pagini: 20
+    </div>
+</header>
+
+<h1>Ghid de produse și comisioane</h1>
+<p>
+    Prezentul document descrie produsele bancare oferite de BanK, comisioanele
+    aplicabile, ratele de dobândă și regulile de securitate pentru operațiunile
+    efectuate prin aplicația BanK. Documentul se adresează clienților persoane
+    fizice și este parte integrantă din Contractul-cadru de servicii bancare.
+</p>
+
+<div class="note">
+    <strong>Cuprins:</strong> 1. Tipuri de conturi &nbsp;·&nbsp; 2. Comisioane
+    &nbsp;·&nbsp; 3. Program de recomandare &nbsp;·&nbsp; 4. Securitate și
+    autentificare &nbsp;·&nbsp; 5. Resetarea parolei &nbsp;·&nbsp; 6. Plăți și
+    transferuri &nbsp;·&nbsp; 7. Comanda cardului fizic &nbsp;·&nbsp;
+    8. Beneficiari salvați &nbsp;·&nbsp; 9. Notificări &nbsp;·&nbsp;
+    10. Dispozitive de încredere &nbsp;·&nbsp; 11. Deschiderea contului prin
+    asistentul conversațional &nbsp;·&nbsp; 12. Confidențialitatea datelor
+    &nbsp;·&nbsp; 13. Suport și reclamații &nbsp;·&nbsp; 14. Autentificarea
+    facială &nbsp;·&nbsp; 15. Limita de cheltuială a cardului &nbsp;·&nbsp;
+    16. Analiza cheltuielilor (asistent analitic) &nbsp;·&nbsp;
+    17. Planificare financiară (asistent de planificare) &nbsp;·&nbsp;
+    18. Asistentul conversațional — ce poate și ce nu poate face &nbsp;·&nbsp;
+    19. Extrase de cont și istoricul tranzacțiilor &nbsp;·&nbsp;
+    20. Glosar de termeni &nbsp;·&nbsp; 21. Întrebări frecvente &nbsp;·&nbsp;
+    22. Erori frecvente și mesaje de eroare &nbsp;·&nbsp;
+    23. Cerințe pentru deschiderea unui cont &nbsp;·&nbsp;
+    24. Programul de disponibilitate a serviciilor &nbsp;·&nbsp;
+    25. Exemple de calcul &nbsp;·&nbsp; 26. Exemple de conversații cu
+    asistentul &nbsp;·&nbsp; 27. Istoricul versiunilor documentului
+</div>
+
+<h2>1. Tipuri de conturi</h2>
+
+<p>
+    BanK oferă trei tipuri de conturi, disponibile în trei valute: RON, EUR și
+    USD. Un client poate deschide oricâte conturi dorește, fără costuri de
+    administrare.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 22%">Tip cont</th>
+            <th style="width: 14%">Dobândă anuală</th>
+            <th style="width: 20%">Retrageri</th>
+            <th>Descriere</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Cont curent</td>
+            <td>0,00%</td>
+            <td>Nelimitate</td>
+            <td>Cont pentru operațiuni zilnice: încasări, plăți, transferuri, atașare card.</td>
+        </tr>
+        <tr>
+            <td>Cont de economii</td>
+            <td>2,50%</td>
+            <td>Nelimitate</td>
+            <td>Dobândă acumulată lunar, fără blocarea fondurilor. Retragere oricând, fără penalizare.</td>
+        </tr>
+        <tr>
+            <td>Depozit la termen</td>
+            <td>3,50% – 5,00%</td>
+            <td>Blocate până la scadență</td>
+            <td>Rată fixă pe durata termenului ales. Fondurile nu pot fi retrase înainte de data scadenței.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>1.1 Rate de dobândă pentru depozitele la termen</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%">Termen</th>
+            <th style="width: 25%">Dobândă anuală</th>
+            <th>Sumă minimă</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>3 luni</td><td>3,50%</td><td>500 RON / 100 EUR / 100 USD</td></tr>
+        <tr><td>6 luni</td><td>4,00%</td><td>500 RON / 100 EUR / 100 USD</td></tr>
+        <tr><td>12 luni</td><td>4,50%</td><td>1.000 RON / 200 EUR / 200 USD</td></tr>
+        <tr><td>24 luni</td><td>5,00%</td><td>1.000 RON / 200 EUR / 200 USD</td></tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>Important:</strong> Depozitele la termen sunt blocate pentru
+    retrageri (debitări) până la data scadenței. Orice încercare de transfer
+    sau plată din contul de depozit înainte de scadență va fi respinsă automat
+    de sistem. La scadență, fondurile și dobânda acumulată devin disponibile.
+</div>
+
+<h3>1.2 Închiderea unui cont</h3>
+
+<p>
+    Un cont poate fi închis oricând din aplicație, fără comision, cu o singură
+    condiție: soldul lui trebuie să fie exact zero la momentul închiderii —
+    nici pozitiv, nici negativ (vezi și secțiunea 22, „Soldul contului trebuie
+    să fie zero”). Dacă mai există fonduri în cont, clientul trebuie să le
+    transfere sau să le retragă mai întâi. Un cont de depozit la termen
+    nescadent nu poate fi închis, indiferent de sold, până la data scadenței
+    (vezi nota de mai sus).
+</p>
+
+<p>
+    Închiderea unui cont este ireversibilă — contul nu poate fi „redeschis”
+    ulterior. Clientul poate însă oricând deschide un cont nou, de același tip
+    și în aceeași valută, fără nicio restricție legată de contul închis
+    anterior. Istoricul tranzacțiilor unui cont închis rămâne disponibil în
+    extrasele de cont (secțiunea 19), chiar dacă noi operațiuni nu mai pot fi
+    efectuate pe el.
+</p>
+
+<h2>2. Comisioane</h2>
+
+<h3>2.1 Operațiuni de cont</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 55%">Operațiune</th>
+            <th style="width: 22%">Comision</th>
+            <th>Observații</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Deschidere cont</td><td>Gratuit</td><td>Toate tipurile de conturi</td></tr>
+        <tr><td>Administrare lunară cont</td><td>Gratuit</td><td>—</td></tr>
+        <tr><td>Închidere cont</td><td>Gratuit</td><td>Soldul trebuie să fie zero</td></tr>
+        <tr><td>Transfer între conturile proprii</td><td>Gratuit</td><td>Aceeași valută</td></tr>
+        <tr><td>Plată către alt client BanK (prin IBAN)</td><td>Gratuit</td><td>Aceeași valută</td></tr>
+        <tr><td>Emitere extras de cont</td><td>Gratuit</td><td>Disponibil în aplicație</td></tr>
+    </tbody>
+</table>
+
+<h3>2.2 Carduri</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 55%">Serviciu</th>
+            <th style="width: 22%">Comision</th>
+            <th>Observații</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Emitere card virtual</td><td>Gratuit</td><td>Disponibil instant în aplicație</td></tr>
+        <tr><td>Emitere card fizic</td><td>15,00 RON</td><td>Livrare în 5–7 zile lucrătoare</td></tr>
+        <tr><td>Blocare temporară card</td><td>Gratuit</td><td>Reversibilă din aplicație</td></tr>
+        <tr><td>Anulare definitivă card</td><td>Gratuit</td><td>Ireversibilă</td></tr>
+        <tr><td>Modificare limită de cheltuială</td><td>Gratuit</td><td>Oricând, din aplicație</td></tr>
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>3. Program de recomandare (referral)</h2>
+
+<p>
+    Fiecare client BanK primește un cod de recomandare unic, format din 8
+    caractere alfanumerice, disponibil în secțiunea „Codul meu de referral”
+    din profilul aplicației. Codul poate fi distribuit oricărei persoane care
+    dorește să deschidă un cont la BanK.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 34%">Beneficiar</th>
+            <th style="width: 20%">Sumă</th>
+            <th>Condiții de acordare</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Clientul nou recomandat</td>
+            <td>500,00 RON</td>
+            <td>
+                Se acordă la deschiderea fiecărui cont nou, cu condiția ca
+                înregistrarea să fi fost făcută folosind un cod de recomandare
+                valid.
+            </td>
+        </tr>
+        <tr>
+            <td>Clientul care recomandă</td>
+            <td>300,00 RON</td>
+            <td>
+                Se acordă în momentul în care persoana recomandată își deschide
+                primul cont. Bonusul se plătește exclusiv într-un cont în RON;
+                dacă recomandantul nu deține un cont în RON la acel moment,
+                bonusul rămâne în așteptare și se acordă automat la deschiderea
+                primului cont în RON.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    Nu există o limită a numărului de persoane pe care un client le poate
+    recomanda. Bonusurile se acordă automat, fără cerere prealabilă, iar
+    clientul primește o notificare în aplicație la fiecare bonus încasat.
+</p>
+
+<h2>4. Securitate și autentificare</h2>
+
+<h3>4.1 Metode de autentificare</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 30%">Metodă</th>
+            <th style="width: 22%">Disponibilitate</th>
+            <th>Descriere</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Email și parolă</td>
+            <td>Implicit</td>
+            <td>Parola trebuie să conțină minimum 8 caractere.</td>
+        </tr>
+        <tr>
+            <td>Autentificare facială</td>
+            <td>Opțională</td>
+            <td>Se activează din profil. Permite autentificarea fără parolă, folosind camera dispozitivului.</td>
+        </tr>
+        <tr>
+            <td>Dispozitiv recunoscut</td>
+            <td>Opțională</td>
+            <td>Un dispozitiv înrolat anterior permite autentificarea doar cu parola, fără cod de verificare.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>4.2 Limite și praguri de securitate</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 55%">Regulă</th>
+            <th>Valoare</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Prag peste care este necesară confirmarea facială a tranzacției</td>
+            <td>5.000,00 RON</td>
+        </tr>
+        <tr>
+            <td>Confirmare facială la prima plată către un beneficiar nou</td>
+            <td>Obligatorie, indiferent de sumă</td>
+        </tr>
+        <tr>
+            <td>Număr maxim de încercări eșuate de autentificare</td>
+            <td>5 încercări</td>
+        </tr>
+        <tr>
+            <td>Durata blocării contului după depășirea numărului de încercări</td>
+            <td>15 minute</td>
+        </tr>
+        <tr>
+            <td>Valabilitatea codului de resetare a parolei</td>
+            <td>10 minute</td>
+        </tr>
+        <tr>
+            <td>Durata unei sesiuni active</td>
+            <td>7 zile</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="note">
+    <strong>Notă privind confirmarea facială:</strong> Confirmarea facială este
+    solicitată automat de aplicație atunci când o tranzacție depășește pragul
+    de 5.000,00 RON sau când este prima plată efectuată către o persoană cu
+    care clientul nu a mai tranzacționat anterior. Clienții care nu au activat
+    autentificarea facială nu sunt afectați de aceste verificări.
+</div>
+
+<h2>5. Resetarea parolei</h2>
+
+<p>
+    În cazul în care clientul își pierde parola, procedura de resetare se
+    desfășoară în trei etape:
+</p>
+
+<ul>
+    <li><strong>Etapa 1:</strong> Clientul introduce adresa de email asociată contului. Sistemul trimite un cod de verificare format din 6 cifre.</li>
+    <li><strong>Etapa 2:</strong> Clientul introduce codul primit. Codul este valabil 10 minute și permite maximum 5 încercări de introducere.</li>
+    <li><strong>Etapa 3:</strong> După validarea codului, clientul poate seta o parolă nouă, cu confirmarea acesteia.</li>
+</ul>
+
+<p>
+    La finalizarea resetării, toate sesiunile active ale clientului sunt
+    închise automat, pe toate dispozitivele. Clientul va trebui să se
+    autentifice din nou folosind noua parolă.
+</p>
+
+<h2>6. Plăți și transferuri</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%">Tip operațiune</th>
+            <th style="width: 30%">Destinatar</th>
+            <th>Restricții</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Transfer</td>
+            <td>Conturi proprii ale aceluiași client</td>
+            <td>Ambele conturi trebuie să fie în aceeași valută. Contul sursă nu poate fi un depozit la termen nescadent.</td>
+        </tr>
+        <tr>
+            <td>Plată</td>
+            <td>Orice client BanK, identificat prin IBAN</td>
+            <td>Contul expeditorului și cel al destinatarului trebuie să fie în aceeași valută. Nu se pot efectua plăți între valute diferite.</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    La introducerea IBAN-ului destinatarului, aplicația afișează automat numele
+    titularului contului, pentru verificare înainte de confirmarea plății.
+    Beneficiarii pot fi salvați în agenda de contacte, opțiune activată implicit
+    la fiecare plată.
+</p>
+
+<h3>6.1 Verificarea destinatarului înainte de plată</h3>
+
+<p>
+    Pasul de verificare a numelui titularului nu poate fi dezactivat și nu
+    poate fi omis — aplicația îl afișează la fiecare plată, indiferent dacă
+    destinatarul este deja salvat ca beneficiar sau este introdus pentru prima
+    dată. Scopul lui este să reducă riscul unei plăți către un IBAN greșit,
+    introdus manual sau copiat incorect. Dacă numele afișat nu corespunde
+    persoanei sau firmei căreia clientul intenționează să-i plătească, plata
+    trebuie anulată înainte de confirmare — odată confirmată, o plată nu mai
+    poate fi retrasă sau anulată din aplicație.
+</p>
+
+<div class="page-break"></div>
+
+<h2>7. Comanda cardului fizic</h2>
+
+<p>
+    Cardul virtual este disponibil instant, dar cardul fizic trebuie comandat
+    separat din aplicație. La comandă, clientul completează datele de livrare
+    (nume complet, telefon, adresă, oraș, cod poștal, țară) — acestea pot fi
+    diferite de datele din profilul contului, de exemplu atunci când cardul
+    este livrat la adresa de serviciu.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%">Stare comandă</th>
+            <th>Descriere</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>În așteptare (pending)</td><td>Comanda a fost înregistrată și urmează să fie procesată.</td></tr>
+        <tr><td>Expediată (shipped)</td><td>Cardul a fost trimis către adresa de livrare indicată.</td></tr>
+        <tr><td>Livrată (delivered)</td><td>Cardul a ajuns la client și poate fi activat din aplicație.</td></tr>
+        <tr><td>Anulată (cancelled)</td><td>Comanda a fost anulată; niciun card nu va fi livrat pentru ea.</td></tr>
+    </tbody>
+</table>
+
+<p>
+    Starea comenzii poate fi urmărită oricând din secțiunea „Comenzile mele de
+    carduri” a aplicației. Comisionul de 15,00 RON pentru emiterea cardului
+    fizic (vezi secțiunea 2.2) se aplică o singură dată, la plasarea comenzii.
+</p>
+
+<h2>8. Beneficiari salvați</h2>
+
+<p>
+    La fiecare plată efectuată către un IBAN care nu aparține clientului,
+    aplicația oferă opțiunea de a salva destinatarul ca beneficiar, cu un
+    nume afișat ales de client (independent de numele titularului de cont).
+    Beneficiarii salvați apar în agenda de contacte și permit inițierea unei
+    plăți noi fără reintroducerea IBAN-ului. Un beneficiar poate fi redenumit
+    sau șters oricând din aplicație — ștergerea unui beneficiar nu afectează
+    istoricul plăților deja efectuate către el.
+</p>
+
+<h2>9. Notificări</h2>
+
+<p>
+    Aplicația trimite notificări în timp real pentru evenimentele relevante
+    din cont, vizibile în secțiunea „Notificări”. Printre evenimentele care
+    generează o notificare:
+</p>
+
+<ul>
+    <li>Acordarea unui bonus de recomandare (referral), atât pentru client, cât și pentru persoana recomandată — vezi secțiunea 3.</li>
+    <li>Schimbarea stării unei comenzi de card fizic (expediere, livrare).</li>
+    <li>O tranzacție care necesită confirmare facială (vezi secțiunea 4.2).</li>
+</ul>
+
+<h2>10. Dispozitive de încredere</h2>
+
+<p>
+    Un client care se autentifică frecvent de pe același telefon sau
+    calculator poate înrola acel dispozitiv ca fiind „de încredere”, printr-un
+    cod de verificare trimis o singură dată. De pe un dispozitiv înrolat,
+    autentificările ulterioare necesită doar parola, fără cod suplimentar
+    (vezi și secțiunea 4.1). Înrolarea este valabilă 180 de zile de la
+    activare, după care dispozitivul trebuie reînrolat. Dispozitivele de
+    încredere pot fi revocate oricând din profilul aplicației — de exemplu la
+    schimbarea sau pierderea telefonului.
+</p>
+
+<h2>11. Deschiderea contului prin asistentul conversațional</h2>
+
+<p>
+    Un client nou poate deschide un cont fie completând formularul clasic de
+    înregistrare, fie printr-o conversație ghidată cu asistentul aplicației.
+    Asistentul cere mai întâi CNP-ul și adresa de email; clientul poate opta
+    să încarce o fotografie a buletinului, din care aplicația citește automat
+    CNP-ul, numele și adresa. Dacă un cont există deja pentru CNP-ul sau
+    email-ul introdus, asistentul oprește interviul și direcționează clientul
+    către resetarea parolei, în loc să continue înregistrarea.
+</p>
+
+<p>
+    Dacă niciun cont nu există, asistentul continuă să ceară numele, prenumele
+    și o parolă (minimum 8 caractere) — câmpuri obligatorii — apoi întreabă,
+    explicit ca opționale, telefonul, adresa și un eventual cod de
+    recomandare. Contul nu este creat de asistent: la final, clientul vede un
+    ecran de confirmare cu toate datele adunate și trebuie să confirme
+    explicit înainte ca înregistrarea să fie trimisă efectiv.
+</p>
+
+<h2>12. Confidențialitatea datelor</h2>
+
+<p>
+    Datele personale colectate de BanK (identitate, date de contact, date
+    financiare) sunt folosite exclusiv pentru furnizarea serviciilor bancare
+    descrise în acest document și pentru îndeplinirea obligațiilor legale
+    aplicabile. Clientul poate solicita oricând, din secțiunea de suport,
+    accesul la propriile date, rectificarea lor sau ștergerea contului.
+    Datele biometrice folosite pentru autentificarea facială (vezi secțiunea
+    4.1) sunt stocate exclusiv sub formă de reprezentare matematică a
+    trăsăturilor faciale, niciodată ca fotografie, și sunt șterse imediat la
+    dezactivarea autentificării faciale din profil.
+</p>
+
+<h2>13. Suport și reclamații</h2>
+
+<p>
+    Pentru întrebări, sesizări sau reclamații legate de orice serviciu descris
+    în acest document, clientul poate contacta echipa de suport direct din
+    aplicație, din secțiunea „Ajutor”. O reclamație înregistrată primește un
+    număr de referință și un răspuns în cel mult 5 zile lucrătoare. Pentru
+    situații care implică o presupusă tranzacție neautorizată, clientul este
+    rugat să contacteze suportul imediat ce observă tranzacția, pentru ca
+    aceasta să poată fi analizată cât mai curând posibil.
+</p>
+
+<h2>14. Autentificarea facială</h2>
+
+<p>
+    Autentificarea facială este o metodă opțională, activată de client din
+    profilul aplicației. La activare, camera dispozitivului captează o singură
+    fotografie a feței clientului; aplicația nu stochează fotografia în sine,
+    ci doar o reprezentare matematică derivată din trăsăturile faciale (vezi
+    și secțiunea 12). La fiecare autentificare sau confirmare ulterioară,
+    aplicația recaptează o imagine și o compară cu reprezentarea stocată.
+</p>
+
+<div class="note">
+    <strong>Notă tehnică:</strong> Implementarea actuală nu include detecția
+    de „liveness” (verificarea că imaginea provine de la o persoană reală, nu
+    de la o fotografie afișată pe alt ecran). Este o metodă convenabilă de
+    autentificare secundară, nu un substitut pentru un factor de securitate de
+    nivel bancar real. Clienții care doresc o garanție de securitate mai
+    ridicată pot folosi doar autentificarea cu email și parolă.
+</div>
+
+<p>
+    Autentificarea facială poate fi dezactivată oricând din profil; la
+    dezactivare, reprezentarea facială stocată este ștearsă imediat, iar
+    clientul revine la autentificarea cu email și parolă pentru orice
+    operațiune care anterior necesita confirmare facială.
+</p>
+
+<h2>15. Limita de cheltuială a cardului</h2>
+
+<p>
+    Fiecare card (virtual sau fizic) are o limită de cheltuială proprie, pe
+    care clientul o poate modifica oricând din aplicație, fără comision și
+    fără o perioadă de așteptare. Limita se aplică per card, nu per cont —
+    două carduri atașate aceluiași cont pot avea limite diferite. O limită
+    setată la zero blochează efectiv orice plată cu acel card, fără a fi
+    nevoie de anularea lui.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 40%">Acțiune</th>
+            <th>Efect</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Mărirea limitei</td><td>Se aplică imediat, fără verificare suplimentară.</td></tr>
+        <tr><td>Reducerea limitei</td><td>Se aplică imediat; nu afectează tranzacțiile deja efectuate.</td></tr>
+        <tr><td>Blocare temporară card</td><td>Suspendă toate plățile, indiferent de limită; reversibilă (vezi secțiunea 2.2).</td></tr>
+        <tr><td>Anulare definitivă card</td><td>Limita devine irelevantă — cardul nu mai poate fi folosit deloc.</td></tr>
+    </tbody>
+</table>
+
+<h2>16. Analiza cheltuielilor (asistent analitic)</h2>
+
+<p>
+    Pe lângă citirea directă a datelor (secțiunea 18), aplicația oferă un
+    asistent analitic, specializat în interpretarea modului în care clientul
+    își cheltuie banii — nu doar afișarea cifrelor, ci observații („cheltuielile
+    tale pe mâncare s-au dublat față de luna trecută”). Asistentul analitic nu
+    poate efectua nicio acțiune: nu mută bani, nu setează limite, nu blochează
+    carduri — poate doar analiza și sugera.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 30%">Tip de analiză</th>
+            <th>Ce oferă</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Statistici pe perioadă</td>
+            <td>Venituri, cheltuieli, sold net, valoarea medie a unei tranzacții, cea mai mare/mică tranzacție, ziua cu cele mai multe cheltuieli — pentru orice interval cerut (săptămână, lună, trimestru).</td>
+        </tr>
+        <tr>
+            <td>Categorii de cheltuieli</td>
+            <td>Împarte cheltuielile pe categorii (mâncare, abonamente, transport etc.), utilă pentru „pe ce am cheltuit cel mai mult luna asta?”.</td>
+        </tr>
+        <tr>
+            <td>Plăți recurente</td>
+            <td>Identifică abonamentele și plățile care se repetă la interval regulat în istoricul tranzacțiilor.</td>
+        </tr>
+        <tr>
+            <td>Tranzacții neobișnuite</td>
+            <td>Semnalează o tranzacție cu o sumă mult peste normal sau către un comerciant cu care clientul nu a mai tranzacționat niciodată.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>16.1 Categorii de cheltuieli</h3>
+
+<p>
+    Categorisirea cheltuielilor (secțiunea 16) grupează fiecare tranzacție de
+    tip debit într-una dintre categoriile de mai jos, pe baza descrierii și a
+    tiparului tranzacției. O tranzacție care nu se potrivește clar niciunei
+    categorii este marcată „Altele”, nu este ignorată.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%">Categorie</th>
+            <th>Exemple de tranzacții incluse</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Mâncare</td><td>Restaurante, livrări de mâncare, cumpărături alimentare.</td></tr>
+        <tr><td>Transport</td><td>Combustibil, transport în comun, aplicații de ride-sharing.</td></tr>
+        <tr><td>Abonamente</td><td>Servicii de streaming, aplicații cu plată recurentă, membership-uri.</td></tr>
+        <tr><td>Utilități</td><td>Curent, apă, gaz, internet, telefonie.</td></tr>
+        <tr><td>Divertisment</td><td>Cinema, evenimente, jocuri.</td></tr>
+        <tr><td>Sănătate</td><td>Farmacii, cabinete medicale, asigurări de sănătate.</td></tr>
+        <tr><td>Cumpărături</td><td>Îmbrăcăminte, electronice, magazine generale.</td></tr>
+        <tr><td>Altele</td><td>Orice tranzacție care nu se încadrează clar în categoriile de mai sus.</td></tr>
+    </tbody>
+</table>
+
+<h3>16.2 Ce înseamnă „tranzacție neobișnuită”</h3>
+
+<p>
+    Detecția de anomalii (secțiunea 16) nu se bazează pe o listă fixă de
+    reguli, ci compară fiecare tranzacție nouă cu tiparul istoric al
+    clientului respectiv. Aceeași sumă poate fi semnalată pentru un client și
+    ignorată pentru altul, în funcție de comportamentul lui obișnuit.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 34%">Situație</th>
+            <th>De ce e semnalată</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>O plată de 2.000 RON, când tranzacțiile obișnuite ale clientului sunt sub 200 RON</td>
+            <td>Suma e mult peste normalul istoric al acelui client.</td>
+        </tr>
+        <tr>
+            <td>Prima plată vreodată către un comerciant nou, cu o sumă neobișnuit de mare</td>
+            <td>Combină doi factori: comerciant nou și sumă atipică.</td>
+        </tr>
+        <tr>
+            <td>O plată de 50 RON către un comerciant unde clientul cumpără des</td>
+            <td>NU este semnalată — se încadrează în tiparul obișnuit al clientului.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>17. Planificare financiară (asistent de planificare)</h2>
+
+<p>
+    Asistentul de planificare ajută clientul să atingă un obiectiv financiar
+    concret („vreau să economisesc pentru o vacanță de 3.000 RON până în
+    august”), pe baza soldului și a istoricului real de venituri/cheltuieli.
+    La fel ca asistentul analitic, nu poate executa nimic — nu creează
+    transferuri automate și nu mută bani; oferă doar proiecții și recomandări.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 30%">Instrument</th>
+            <th>Ce calculează</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Proiecția soldului</td>
+            <td>Cum evoluează soldul pe un număr de luni, pornind de la ritmul actual de economisire sau de la unul specificat de client.</td>
+        </tr>
+        <tr>
+            <td>Simulare „ce-ar fi dacă”</td>
+            <td>Aplică o ajustare ipotetică (ex. reducerea cheltuielilor pe o categorie, o mărire de venit) și compară rezultatul cu scenariul de bază.</td>
+        </tr>
+        <tr>
+            <td>Obiectiv de economisire</td>
+            <td>Verifică dacă un obiectiv este realizabil într-un termen dat și cât trebuie economisit lunar; dacă termenul nu e realist, oferă alternative (termen mai lung, sumă mai mică).</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    <em>Exemplu ilustrativ</em> (sumele sunt orientative, calculate individual
+    pentru fiecare client pe baza datelor reale): pentru un obiectiv de 3.000
+    RON într-un termen de 12 luni, asistentul ar recomanda economisirea a
+    aproximativ 250 RON pe lună; pentru același obiectiv în 6 luni,
+    aproximativ 500 RON pe lună.
+</p>
+
+<h2>18. Asistentul conversațional — ce poate și ce nu poate face</h2>
+
+<p>
+    Toate cele patru roluri ale asistentului conversațional al aplicației
+    (citirea datelor de cont, analiza cheltuielilor — secțiunea 16,
+    planificarea financiară — secțiunea 17, și documentația de produs din
+    acest ghid) au o regulă comună: pot CITI și pot EXPLICA, dar nu pot
+    ACȚIONA. Niciunul dintre ele nu poate muta bani, deschide sau închide
+    conturi, bloca sau anula carduri, modifica limite, sau efectua orice altă
+    schimbare asupra contului clientului.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 30%">Poate</th>
+            <th>Nu poate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Să citească soldul, tranzacțiile, cardurile și transferurile clientului</td>
+            <td>Să inițieze un transfer sau o plată</td>
+        </tr>
+        <tr>
+            <td>Să analizeze cheltuielile și să identifice tipare</td>
+            <td>Să blocheze, anuleze sau comande un card</td>
+        </tr>
+        <tr>
+            <td>Să proiecteze solduri și să simuleze scenarii viitoare</td>
+            <td>Să modifice o limită de cheltuială</td>
+        </tr>
+        <tr>
+            <td>Să răspundă din documentația de produse și comisioane</td>
+            <td>Să inventeze o sumă, un comision sau o dobândă care nu apare în documentație</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    Fiecare întrebare este direcționată automat către rolul potrivit, pe baza
+    conținutului ei — clientul nu trebuie să aleagă manual „modul” în care
+    vorbește cu asistentul.
+</p>
+
+<h2>19. Extrase de cont și istoricul tranzacțiilor</h2>
+
+<p>
+    Extrasul de cont este disponibil oricând din aplicație, generat instant,
+    fără comision (vezi și secțiunea 2.1). Istoricul tranzacțiilor este
+    păstrat integral, fără o limită de timp după care tranzacțiile vechi ar
+    deveni inaccesibile — orice tranzacție efectuată din momentul deschiderii
+    contului rămâne vizibilă și căutabilă. Filtrarea tranzacțiilor se poate
+    face după interval de dată, cont și, prin asistentul analitic
+    (secțiunea 16), și după categorie.
+</p>
+
+<h2>20. Glosar de termeni</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%">Termen</th>
+            <th>Explicație</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>IBAN</td><td>Identificatorul internațional al unui cont bancar, folosit pentru a primi plăți de la orice client BanK.</td></tr>
+        <tr><td>Cont curent</td><td>Contul pentru operațiuni zilnice, fără dobândă, cu retrageri nelimitate.</td></tr>
+        <tr><td>Cont de economii</td><td>Cont cu dobândă, fără blocarea fondurilor — retragere oricând, fără penalizare.</td></tr>
+        <tr><td>Depozit la termen</td><td>Cont cu dobândă fixă, cu fondurile blocate până la o dată de scadență stabilită la deschidere.</td></tr>
+        <tr><td>Comision</td><td>Suma percepută de bancă pentru o operațiune specifică; majoritatea operațiunilor din acest document sunt gratuite.</td></tr>
+        <tr><td>Beneficiar</td><td>O persoană salvată în agenda de contacte a clientului, identificată printr-un IBAN, pentru plăți repetate.</td></tr>
+        <tr><td>Dispozitiv de încredere</td><td>Un telefon sau calculator înrolat, pe care autentificarea ulterioară nu mai necesită un cod suplimentar.</td></tr>
+        <tr><td>Unități minore</td><td>Cea mai mică subdiviziune a unei valute (bani, cenți) — modul intern în care aplicația reprezintă sumele, pentru precizie exactă.</td></tr>
+        <tr><td>Card virtual</td><td>Card disponibil instant în aplicație, fără suport fizic — utilizabil imediat pentru plăți online.</td></tr>
+        <tr><td>Card fizic</td><td>Cardul tipărit, livrat la adresa indicată — necesită o comandă separată (secțiunea 7) și un comision de emitere.</td></tr>
+        <tr><td>Confirmare facială</td><td>Verificare suplimentară printr-o fotografie a feței, cerută automat peste un anumit prag de sumă sau la un beneficiar nou (secțiunea 4.2).</td></tr>
+        <tr><td>Cod de recomandare (referral)</td><td>Cod unic de 8 caractere, deținut de fiecare client, care poate fi distribuit altor persoane pentru un bonus la deschiderea de cont nou (secțiunea 3).</td></tr>
+        <tr><td>Sesiune activă</td><td>Perioada în care un client rămâne autentificat, fără a mai introduce parola — 7 zile de la ultima autentificare.</td></tr>
+        <tr><td>Idempotency-Key</td><td>Un identificator unic trimis de aplicație la fiecare operațiune care mută bani, folosit pentru a preveni dublarea accidentală a aceleiași operațiuni (de exemplu la o reîncercare automată după o eroare de rețea).</td></tr>
+        <tr><td>Asistent conversațional</td><td>Componenta aplicației cu care clientul poate vorbi în limbaj natural, pentru a citi date de cont, a primi analize, proiecții sau răspunsuri din documentație (secțiunea 18).</td></tr>
+    </tbody>
+</table>
+
+<h3>20.1 Tabel comparativ rapid</h3>
+
+<p>
+    O privire de ansamblu asupra celor mai căutate informații din acest
+    document, pentru consultare rapidă.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 34%">Întreb despre...</th>
+            <th>Răspuns pe scurt</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Administrare cont, transfer propriu, plată către alt client BanK</td><td>Gratuit</td></tr>
+        <tr><td>Card virtual</td><td>Gratuit, instant</td></tr>
+        <tr><td>Card fizic</td><td>15,00 RON, livrare 5–7 zile lucrătoare</td></tr>
+        <tr><td>Dobândă cont de economii</td><td>2,50% anual, fără blocarea fondurilor</td></tr>
+        <tr><td>Dobândă depozit la termen</td><td>3,50%–5,00% anual, în funcție de termen (3–24 luni)</td></tr>
+        <tr><td>Bonus recomandare — persoana nouă</td><td>500,00 RON, la deschiderea contului</td></tr>
+        <tr><td>Bonus recomandare — cel care recomandă</td><td>300,00 RON, per persoană recomandată, fără limită de număr</td></tr>
+        <tr><td>Prag confirmare facială</td><td>5.000,00 RON, sau orice sumă la un beneficiar nou</td></tr>
+        <tr><td>Blocare cont după parole greșite</td><td>15 minute, după 5 încercări</td></tr>
+        <tr><td>Valabilitate cod resetare parolă</td><td>10 minute, maximum 5 încercări</td></tr>
+        <tr><td>Durată sesiune activă</td><td>7 zile</td></tr>
+        <tr><td>Valabilitate dispozitiv de încredere</td><td>180 de zile</td></tr>
+    </tbody>
+</table>
+
+<h2>21. Întrebări frecvente</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 45%">Întrebare</th>
+            <th>Răspuns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Pot avea mai multe conturi în aceeași valută?</td>
+            <td>Da, clientul poate deschide oricâte conturi dorește, în oricare dintre cele trei valute (RON, EUR, USD), fără costuri de administrare.</td>
+        </tr>
+        <tr>
+            <td>Pot transfera bani între un cont în RON și unul în EUR?</td>
+            <td>Nu. Atât transferurile între conturile proprii, cât și plățile către alți clienți, se fac exclusiv între conturi în aceeași valută.</td>
+        </tr>
+        <tr>
+            <td>Pot retrage banii dintr-un depozit la termen înainte de scadență?</td>
+            <td>Nu. Fondurile dintr-un depozit la termen sunt blocate până la data scadenței; orice încercare de transfer sau plată din acel cont este respinsă automat.</td>
+        </tr>
+        <tr>
+            <td>De ce mi se cere confirmare facială la o plată?</td>
+            <td>Se întâmplă automat când suma depășește 5.000,00 RON sau când plătești pentru prima dată către un beneficiar nou — indiferent de sumă în acest ultim caz.</td>
+        </tr>
+        <tr>
+            <td>Ce se întâmplă dacă introduc greșit parola de 5 ori?</td>
+            <td>Contul se blochează timp de 15 minute, ca măsură de protecție împotriva încercărilor repetate de autentificare.</td>
+        </tr>
+        <tr>
+            <td>Cât costă emiterea unui card fizic?</td>
+            <td>15,00 RON, cu livrare în 5–7 zile lucrătoare. Cardul virtual este gratuit și disponibil instant.</td>
+        </tr>
+        <tr>
+            <td>Pot cere asistentului să blocheze un card sau să facă un transfer?</td>
+            <td>Nu. Asistentul conversațional poate doar citi și explica — nicio parte a lui nu poate acționa asupra contului (vezi secțiunea 18).</td>
+        </tr>
+        <tr>
+            <td>Autentificarea facială înlocuiește parola?</td>
+            <td>Nu. E o metodă opțională, suplimentară, pentru confirmarea rapidă a anumitor operațiuni — nu un substitut pentru email și parolă.</td>
+        </tr>
+        <tr>
+            <td>Ce se întâmplă cu datele mele biometrice dacă dezactivez autentificarea facială?</td>
+            <td>Reprezentarea facială stocată este ștearsă imediat din sistem (vezi secțiunea 14).</td>
+        </tr>
+        <tr>
+            <td>Câte dispozitive de încredere pot avea în același timp?</td>
+            <td>Documentul nu limitează numărul; fiecare este valabil 180 de zile de la înrolare și poate fi revocat oricând din profil.</td>
+        </tr>
+        <tr>
+            <td>Ce se întâmplă dacă anulez o comandă de card înainte să fie expediată?</td>
+            <td>Comanda trece în starea „anulată” și niciun card nu va fi produs sau livrat pentru ea (vezi secțiunea 7).</td>
+        </tr>
+        <tr>
+            <td>Ștergerea unui beneficiar afectează plățile trecute către el?</td>
+            <td>Nu. Istoricul tranzacțiilor rămâne neschimbat; doar comoditatea de a plăti rapid din nou către el dispare.</td>
+        </tr>
+        <tr>
+            <td>Pot seta limita unui card la zero fără să-l anulez?</td>
+            <td>Da. O limită de zero blochează efectiv orice plată, dar cardul rămâne activ și limita poate fi ridicată din nou oricând.</td>
+        </tr>
+        <tr>
+            <td>Cât timp rămân vizibile tranzacțiile vechi?</td>
+            <td>Nu există o limită — întregul istoric, de la deschiderea contului, rămâne vizibil și căutabil (vezi secțiunea 19).</td>
+        </tr>
+        <tr>
+            <td>Asistentul de planificare poate să-mi programeze automat economisirea lunară?</td>
+            <td>Nu. Poate doar să calculeze și să recomande o sumă lunară — clientul trebuie să efectueze el însuși transferul, din aplicație.</td>
+        </tr>
+        <tr>
+            <td>Pot deschide un cont dacă nu am 18 ani?</td>
+            <td>Nu. Deschiderea unui cont BanK este disponibilă doar persoanelor fizice majore (vezi secțiunea 23).</td>
+        </tr>
+        <tr>
+            <td>Ce se întâmplă dacă pierd telefonul pe care aveam autentificarea facială activată?</td>
+            <td>Poți continua să te autentifici cu email și parolă de pe orice alt dispozitiv — autentificarea facială este opțională, nu obligatorie (secțiunea 14). Recomandăm revocarea dispozitivului pierdut din secțiunea de dispozitive de încredere.</td>
+        </tr>
+        <tr>
+            <td>Aplicația e disponibilă și în weekend?</td>
+            <td>Da, non-stop, 24/7, inclusiv weekend și sărbători (secțiunea 24). Doar suportul uman răspunde în termenul de 5 zile lucrătoare.</td>
+        </tr>
+        <tr>
+            <td>Pot avea un card fizic și unul virtual pe același cont?</td>
+            <td>Da — cardul virtual e disponibil instant la deschiderea contului, iar un card fizic poate fi comandat separat oricând, pentru același cont.</td>
+        </tr>
+        <tr>
+            <td>De ce mi se cere un „Idempotency-Key” dacă folosesc aplicația direct, nu prin API?</td>
+            <td>Nu ți se cere — acesta e un detaliu tehnic intern, generat automat de aplicație la fiecare operațiune care mută bani, ca să prevină dublarea ei accidentală (vezi glosarul, secțiunea 20). Un client obișnuit nu îl vede niciodată.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>22. Erori frecvente și mesaje de eroare</h2>
+
+<p>
+    Când o operațiune nu poate fi finalizată, aplicația afișează un mesaj
+    specific, nu unul generic. Tabelul de mai jos explică, în termeni simpli,
+    situațiile cele mai des întâlnite.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 30%">Mesaj / situație</th>
+            <th>Ce înseamnă și ce poți face</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Fonduri insuficiente</td>
+            <td>Contul sursă nu are suficient sold pentru operațiune. Verifică soldul din secțiunea de conturi înainte de a reîncerca.</td>
+        </tr>
+        <tr>
+            <td>Monedele nu corespund</td>
+            <td>Ai încercat un transfer sau o plată între două conturi cu valute diferite — nepermis (vezi secțiunea 6). Alege un cont sursă/destinație în aceeași valută.</td>
+        </tr>
+        <tr>
+            <td>Contul este închis</td>
+            <td>Contul folosit nu mai este activ. Un cont închis nu mai poate primi sau trimite bani.</td>
+        </tr>
+        <tr>
+            <td>Soldul contului trebuie să fie zero</td>
+            <td>Apare la încercarea de a închide un cont cu sold diferit de zero. Golește contul (transfer sau plată) înainte de a-l închide.</td>
+        </tr>
+        <tr>
+            <td>Acest cont este blocat până la scadență</td>
+            <td>Ai încercat o operațiune pe un depozit la termen nescadent (vezi secțiunea 1). Fondurile devin disponibile automat la data scadenței.</td>
+        </tr>
+        <tr>
+            <td>Este necesară confirmarea facială</td>
+            <td>Plata depășește pragul de 5.000 RON sau e prima plată către acel beneficiar (vezi secțiunea 4.2). Confirmă din aplicație, cu autentificarea facială activată, sau folosește o sumă/beneficiar deja cunoscut.</td>
+        </tr>
+        <tr>
+            <td>Confirmare facială invalidă sau expirată</td>
+            <td>Confirmarea a durat prea mult sau nu s-a potrivit. Reîncearcă operațiunea de la început.</td>
+        </tr>
+        <tr>
+            <td>Prea multe încercări eșuate de autentificare</td>
+            <td>Contul este blocat temporar 15 minute, după 5 parole greșite consecutiv (vezi secțiunea 4.2). Așteaptă intervalul sau resetează parola.</td>
+        </tr>
+        <tr>
+            <td>Cod de resetare invalid sau expirat</td>
+            <td>Codul de 6 cifre trimis la resetarea parolei a expirat (valabil 10 minute) sau a fost introdus greșit de prea multe ori. Solicită un cod nou.</td>
+        </tr>
+        <tr>
+            <td>Prea multe încercări eșuate de autentificare (login)</td>
+            <td>După mai multe parole greșite la login, contul necesită o pauză înainte de o nouă încercare — o măsură separată de blocarea generală de mai sus, specifică autentificării.</td>
+        </tr>
+        <tr>
+            <td>Există deja un cont cu acest email</td>
+            <td>Adresa de email introdusă la înregistrare este deja folosită de un cont existent. Folosește „Ai uitat parola?” în loc să te înregistrezi din nou.</td>
+        </tr>
+        <tr>
+            <td>Există deja un cont asociat acestui CNP</td>
+            <td>La fel ca mai sus, dar pentru CNP — un CNP poate fi asociat cu un singur cont BanK.</td>
+        </tr>
+        <tr>
+            <td>Dispozitivul nu este de încredere</td>
+            <td>Ai încercat autentificarea rapidă de pe un dispozitiv care nu a fost înrolat (sau înrolarea a expirat după 180 de zile — vezi secțiunea 10). Autentifică-te normal, cu email și parolă.</td>
+        </tr>
+        <tr>
+            <td>Prea multe cereri</td>
+            <td>Ai efectuat prea multe acțiuni într-un interval scurt. Așteaptă puțin înainte de a reîncerca — este o măsură de protecție a sistemului, nu o eroare a contului tău.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>23. Cerințe pentru deschiderea unui cont</h2>
+
+<p>
+    Deschiderea unui cont BanK este disponibilă persoanelor fizice majore
+    (peste 18 ani), care dețin un act de identitate românesc valid (carte de
+    identitate sau buletin) și o adresă de email funcțională. Aplicația
+    verifică unicitatea contului atât după adresa de email, cât și după CNP —
+    fiecare persoană poate deține un singur cont client BanK, indiferent de
+    câte conturi bancare (curent, economii, depozite) deschide ulterior în
+    interiorul acelui cont client.
+</p>
+
+<p>
+    Actul de identitate nu trebuie neapărat fotografiat — datele pot fi
+    introduse și manual, din formular sau prin conversație cu asistentul
+    (vezi secțiunea 11). Fotografierea este doar o comoditate care completează
+    automat CNP-ul, numele și adresa.
+</p>
+
+<h2>24. Programul de disponibilitate a serviciilor</h2>
+
+<p>
+    Aplicația BanK — deschiderea de conturi, transferuri, plăți, administrarea
+    cardurilor și asistentul conversațional — este disponibilă non-stop, 24 de
+    ore din 24, 7 zile din 7, inclusiv în weekend și sărbători legale. Echipa
+    de suport uman (secțiunea 13) răspunde solicitărilor în cel mult 5 zile
+    lucrătoare, indiferent de canalul folosit.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 34%">Serviciu</th>
+            <th>Disponibilitate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Operațiuni bancare (transferuri, plăți, carduri)</td><td>24/7, automat</td></tr>
+        <tr><td>Asistentul conversațional (toate cele patru roluri)</td><td>24/7, automat</td></tr>
+        <tr><td>Deschiderea unui cont nou</td><td>24/7, automat</td></tr>
+        <tr><td>Suport uman — răspuns la o reclamație sau sesizare</td><td>În cel mult 5 zile lucrătoare</td></tr>
+    </tbody>
+</table>
+
+<h2>25. Exemple de calcul</h2>
+
+<p>
+    Câteva exemple ilustrative, pentru clarificarea modului în care se aplică
+    regulile descrise mai sus. Sumele sunt orientative.
+</p>
+
+<p>
+    <strong>Exemplu 1 — dobânda unui depozit la termen.</strong> Un depozit de
+    1.000 RON, pe termen de 12 luni, la o dobândă anuală de 4,50% (secțiunea
+    1.1), acumulează aproximativ 45 RON dobândă până la scadență, plătită
+    integral odată cu capitalul, la data scadenței — nu lunar.
+</p>
+
+<p>
+    <strong>Exemplu 2 — economisire pentru un obiectiv.</strong> Un client cu
+    un obiectiv de 6.000 RON într-un an, pornind de la un sold curent de 500
+    RON, ar avea nevoie de o economisire medie de aproximativ 458 RON pe lună,
+    calculată de asistentul de planificare (secțiunea 17) pe baza soldului
+    real și a termenului cerut — nu o valoare fixă, universală, ci una
+    recalculată pentru fiecare client și fiecare obiectiv.
+</p>
+
+<p>
+    <strong>Exemplu 3 — programul de recomandare.</strong> Un client care
+    recomandă trei persoane, dintre care toate trei își deschid efectiv un
+    cont folosind codul lui, primește 300 RON de trei ori (900 RON în total),
+    unul pentru fiecare persoană recomandată — bonusul „clientul care
+    recomandă” (secțiunea 3) nu are o limită maximă a numărului de recomandări.
+</p>
+
+<h2>26. Exemple de conversații cu asistentul</h2>
+
+<p>
+    Următoarele exemple ilustrează, pentru fiecare dintre cele patru roluri
+    ale asistentului conversațional (secțiunea 18), tipul de întrebare la care
+    răspunde și forma răspunsului. Sumele sunt exemple, calculate mereu din
+    datele reale ale clientului care întreabă.
+</p>
+
+<div class="note">
+    <strong>Citirea datelor de cont</strong><br>
+    Client: „Care este soldul meu?”<br>
+    Asistent: „Ai 2 conturi: Cont Curent — 1.245,50 RON, Cont de Economii —
+    3.800,00 RON.”
+</div>
+
+<div class="note">
+    <strong>Analiza cheltuielilor (secțiunea 16)</strong><br>
+    Client: „Pe ce am cheltuit cel mai mult luna asta?”<br>
+    Asistent: „Cea mai mare categorie a fost Mâncare, cu 620,00 RON (34% din
+    total), urmată de Transport, cu 310,00 RON. Cheltuielile pe Mâncare au
+    crescut cu 18% față de luna trecută.”
+</div>
+
+<div class="note">
+    <strong>Planificare financiară (secțiunea 17)</strong><br>
+    Client: „Vreau să economisesc 3.000 RON până în august, cum fac?”<br>
+    Asistent: „La ritmul actual mai ai nevoie de aproximativ 375 RON pe lună,
+    timp de 8 luni. Dacă reduci cheltuielile pe abonamente cu 50 RON pe lună,
+    ai ajunge la obiectiv cu o lună mai devreme.”
+</div>
+
+<div class="note">
+    <strong>Documentație de produse (acest ghid)</strong><br>
+    Client: „Cât costă un card fizic?”<br>
+    Asistent: „Emiterea unui card fizic costă 15,00 RON, cu livrare în 5–7
+    zile lucrătoare. Cardul virtual este gratuit și disponibil instant.”
+</div>
+
+<h2>27. Istoricul versiunilor documentului</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 15%">Versiune</th>
+            <th style="width: 20%">Dată</th>
+            <th>Modificări</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>2.0</td><td>iunie 2025</td><td>Versiunea inițială: tipuri de conturi, comisioane, securitate, resetarea parolei, plăți și transferuri.</td></tr>
+        <tr><td>3.2</td><td>noiembrie 2025</td><td>Adăugat programul de recomandare (secțiunea 3).</td></tr>
+        <tr><td>4.0</td><td>1 ianuarie 2026</td><td>Extindere majoră: comenzi de card fizic, beneficiari, notificări, dispozitive de încredere, deschiderea contului prin asistentul conversațional, confidențialitatea datelor, suport, autentificare facială, limita cardului, asistenții analitic și de planificare, glosar și extras de întrebări frecvente.</td></tr>
+        <tr><td>4.1</td><td>1 ianuarie 2026</td><td>Adăugat ghidul de erori și mesaje frecvente, cerințele de deschidere a unui cont și programul de disponibilitate a serviciilor.</td></tr>
+        <tr><td>4.2</td><td>1 ianuarie 2026</td><td>Adăugate exemple de calcul și exemple de conversații cu asistentul, pentru fiecare dintre cele patru roluri ale acestuia.</td></tr>
+    </tbody>
+</table>
+
+<div class="disclaimer">
+    Document fictiv, generat exclusiv în scop de testare și demonstrație pentru
+    aplicația-demo BanK. BanK nu este o instituție financiară reală, nu deține
+    autorizație de funcționare și nu oferă servicii bancare. Sumele, ratele de
+    dobândă, comisioanele și condițiile prezentate în acest document sunt
+    inventate și nu constituie o ofertă comercială.
+</div>
+
+</body>
+</html>
