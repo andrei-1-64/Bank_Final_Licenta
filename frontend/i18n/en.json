@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Reset password - BanK",
     "heading": "Reset password",
-    "request_hint": "Enter your account email. If it exists, you will receive a 6-digit code through Teams.",
-    "code_sent": "If the address exists, a code was sent through Teams.",
+    "request_hint": "Enter your account email. If it exists, you will receive a 6-digit code by email.",
+    "code_sent": "If the address exists, a code was sent by email.",
     "code_label": "Code (6 digits)",
     "resend_prompt": "Didn't receive the code?",
     "resend": "Send again",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Verify device - BanK",
     "heading": "Recognize this device",
-    "description": "We sent you a 6-digit code through Teams. Enter it so next time you can sign in from this computer with only your password, without retyping your email.",
+    "description": "We sent you a 6-digit code by email. Enter it so next time you can sign in from this computer with only your password, without retyping your email.",
     "confirm": "Confirm device",
     "later": "Later"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Error creating the signature request.",
     "sign_intent_official": "I have read and agree to the content of the official document \"{filename}\".",
     "sending_code": "Sending signing code...",
-    "code_sent": "Code sent for \"{filename}\". Check Teams.",
+    "code_sent": "Code sent for \"{filename}\". Check your email.",
     "code_send_error": "The code could not be sent.",
     "face_reason": "Signing an official document - Face ID verification",
     "sign_success": "The document was signed successfully!",

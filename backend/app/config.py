@@ -51,11 +51,15 @@ class Settings(BaseSettings):
 
     RATE_LIMIT_PER_MINUTE: int = 120
 
-    # Password reset OTP delivery - a Microsoft Teams "Workflows" incoming
-    # webhook URL (Teams channel > Workflows > "Send webhook alerts to a
-    # chat"). See app/core/teams.py. None disables delivery: reset codes are
-    # still generated/stored, they just never reach the user.
-    TEAMS_WEBHOOK_URL: str | None = None
+    # OTP email delivery (password reset, trusted-device enrollment, document
+    # signing) via Gmail SMTP. GMAIL_SENDER_EMAIL is the Gmail account that
+    # sends the mail; GMAIL_APP_PASSWORD is an "App Password" generated for
+    # it (Google Account > Security > 2-Step Verification > App passwords) -
+    # not the account's regular login password. See app/core/email.py.
+    # Either unset disables delivery: codes are still generated/stored, they
+    # just never reach the user.
+    GMAIL_SENDER_EMAIL: str | None = None
+    GMAIL_APP_PASSWORD: str | None = None
 
     # Trusted-device cookie (see app/modules/trusted_devices) - separate
     # from the session cookie above, and much longer-lived: it identifies

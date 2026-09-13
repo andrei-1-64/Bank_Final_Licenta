@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Réinitialiser le mot de passe - BanK",
     "heading": "Réinitialiser le mot de passe",
-    "request_hint": "Saisissez l’e-mail de votre compte. S’il existe, vous recevrez un code à 6 chiffres via Teams.",
-    "code_sent": "Si l’adresse existe, un code a été envoyé via Teams.",
+    "request_hint": "Saisissez l’e-mail de votre compte. S’il existe, vous recevrez un code à 6 chiffres par e-mail.",
+    "code_sent": "Si l’adresse existe, un code a été envoyé par e-mail.",
     "code_label": "Code (6 chiffres)",
     "resend_prompt": "Vous n’avez pas reçu le code ?",
     "resend": "Renvoyer",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Vérifier l’appareil - BanK",
     "heading": "Reconnaître cet appareil",
-    "description": "Nous vous avons envoyé un code à 6 chiffres via Teams. Saisissez-le pour vous connecter la prochaine fois avec votre mot de passe uniquement.",
+    "description": "Nous vous avons envoyé un code à 6 chiffres par e-mail. Saisissez-le pour vous connecter la prochaine fois avec votre mot de passe uniquement.",
     "confirm": "Confirmer l’appareil",
     "later": "Plus tard"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Erreur lors de la création de la demande de signature.",
     "sign_intent_official": "J'ai lu et j'accepte le contenu du document officiel « {filename} ».",
     "sending_code": "Envoi du code de signature...",
-    "code_sent": "Code envoyé pour « {filename} ». Vérifiez Teams.",
+    "code_sent": "Code envoyé pour « {filename} ». Vérifiez vos e-mails.",
     "code_send_error": "Le code n'a pas pu être envoyé.",
     "face_reason": "Signature d'un document officiel - vérification Face ID",
     "sign_success": "Le document a été signé avec succès !",

@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Passwort zurücksetzen - BanK",
     "heading": "Passwort zurücksetzen",
-    "request_hint": "Geben Sie die E-Mail-Adresse Ihres Kontos ein. Falls sie existiert, erhalten Sie einen 6-stelligen Code über Teams.",
-    "code_sent": "Falls die Adresse existiert, wurde ein Code über Teams gesendet.",
+    "request_hint": "Geben Sie die E-Mail-Adresse Ihres Kontos ein. Falls sie existiert, erhalten Sie einen 6-stelligen Code per E-Mail.",
+    "code_sent": "Falls die Adresse existiert, wurde ein Code per E-Mail gesendet.",
     "code_label": "Code (6 Ziffern)",
     "resend_prompt": "Code nicht erhalten?",
     "resend": "Erneut senden",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Gerät überprüfen - BanK",
     "heading": "Dieses Gerät erkennen",
-    "description": "Wir haben Ihnen einen 6-stelligen Code über Teams gesendet. Geben Sie ihn ein, damit Sie sich beim nächsten Mal auf diesem Computer nur mit Ihrem Passwort anmelden können.",
+    "description": "Wir haben Ihnen einen 6-stelligen Code per E-Mail gesendet. Geben Sie ihn ein, damit Sie sich beim nächsten Mal auf diesem Computer nur mit Ihrem Passwort anmelden können.",
     "confirm": "Gerät bestätigen",
     "later": "Später"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Fehler beim Erstellen der Signaturanfrage.",
     "sign_intent_official": "Ich habe den Inhalt des offiziellen Dokuments „{filename}“ gelesen und stimme zu.",
     "sending_code": "Signaturcode wird gesendet...",
-    "code_sent": "Code gesendet für „{filename}“. Prüfe Teams.",
+    "code_sent": "Code gesendet für „{filename}“. Prüfen Sie Ihre E-Mails.",
     "code_send_error": "Der Code konnte nicht gesendet werden.",
     "face_reason": "Signatur eines offiziellen Dokuments - Face-ID-Verifizierung",
     "sign_success": "Das Dokument wurde erfolgreich signiert!",

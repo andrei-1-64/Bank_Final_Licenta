@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Reimposta password - BanK",
     "heading": "Reimposta password",
-    "request_hint": "Inserisci l’e-mail del tuo conto. Se esiste, riceverai un codice di 6 cifre tramite Teams.",
-    "code_sent": "Se l’indirizzo esiste, è stato inviato un codice tramite Teams.",
+    "request_hint": "Inserisci l’e-mail del tuo conto. Se esiste, riceverai un codice di 6 cifre via email.",
+    "code_sent": "Se l’indirizzo esiste, è stato inviato un codice via email.",
     "code_label": "Codice (6 cifre)",
     "resend_prompt": "Non hai ricevuto il codice?",
     "resend": "Invia di nuovo",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Verifica dispositivo - BanK",
     "heading": "Riconosci questo dispositivo",
-    "description": "Ti abbiamo inviato un codice di 6 cifre tramite Teams. Inseriscilo per accedere la prossima volta solo con la password.",
+    "description": "Ti abbiamo inviato un codice di 6 cifre via email. Inseriscilo per accedere la prossima volta solo con la password.",
     "confirm": "Conferma dispositivo",
     "later": "Più tardi"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Errore nella creazione della richiesta di firma.",
     "sign_intent_official": "Ho letto e accetto il contenuto del documento ufficiale «{filename}».",
     "sending_code": "Invio del codice di firma...",
-    "code_sent": "Codice inviato per «{filename}». Controlla Teams.",
+    "code_sent": "Codice inviato per «{filename}». Controlla la tua email.",
     "code_send_error": "Impossibile inviare il codice.",
     "face_reason": "Firma di un documento ufficiale - verifica Face ID",
     "sign_success": "Il documento è stato firmato con successo!",

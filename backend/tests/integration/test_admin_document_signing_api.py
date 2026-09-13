@@ -5,9 +5,9 @@ document) and the OTP+Face confirm path for signing it
 Face auth is mocked at the module boundary the same way
 test_proposals_confirm.py mocks it - these tests are about the OTP+Face
 WIRING (both required, proposal ownership, the admin-issued guardrail), not
-the face-match model. The OTP itself is real: `send_teams_message` is
-monkeypatched to capture the text BanK would have posted to Teams, and the
-6-digit code is pulled out of it, exactly like a human reading the channel.
+the face-match model. The OTP itself is real: `send_otp_email` is
+monkeypatched to capture the body BanK would have emailed, and the
+6-digit code is pulled out of it, exactly like a human reading their inbox.
 """
 
 from __future__ import annotations
@@ -21,14 +21,14 @@ async def _promote(supabase, user) -> None:
     await supabase.table("users").update({"role": "admin"}).eq("id", str(user.id)).execute()
 
 
-def _capture_teams(monkeypatch):
+def _capture_email(monkeypatch):
     captured: dict = {}
 
-    async def fake_send_teams_message(text: str) -> bool:
-        captured["text"] = text
+    async def fake_send_otp_email(to_email: str, subject: str, body: str) -> bool:
+        captured["text"] = body
         return True
 
-    monkeypatch.setattr("app.modules.esign.service.send_teams_message", fake_send_teams_message)
+    monkeypatch.setattr("app.modules.esign.service.send_otp_email", fake_send_otp_email)
     return captured
 
 
@@ -141,7 +141,7 @@ async def test_full_otp_and_face_confirm_signs_the_document(
     admin_client, admin = authed_client
     await _promote(supabase, admin)
     target_client, target = await authed_client_factory()
-    captured = _capture_teams(monkeypatch)
+    captured = _capture_email(monkeypatch)
     _mock_face_auth(monkeypatch)
 
     send_resp = await admin_client.post(
@@ -188,7 +188,7 @@ async def test_wrong_otp_code_is_rejected(
     admin_client, admin = authed_client
     await _promote(supabase, admin)
     target_client, target = await authed_client_factory()
-    _capture_teams(monkeypatch)
+    _capture_email(monkeypatch)
     _mock_face_auth(monkeypatch)
 
     send_resp = await admin_client.post(
@@ -232,7 +232,7 @@ async def test_five_wrong_otp_codes_locks_out_further_attempts(
     admin_client, admin = authed_client
     await _promote(supabase, admin)
     target_client, target = await authed_client_factory()
-    captured = _capture_teams(monkeypatch)
+    captured = _capture_email(monkeypatch)
     _mock_face_auth(monkeypatch)
 
     send_resp = await admin_client.post(
@@ -277,12 +277,15 @@ async def test_five_wrong_otp_codes_locks_out_further_attempts(
 async def test_self_uploaded_document_cannot_use_otp_face_path(
     authed_client, monkeypatch
 ):
-    """The stronger OTP+Face path is reserved for admin-issued documents -
-    see esign_service._require_admin_issued_sign_proposal. A self-uploaded
-    document must be signed through the ordinary Face-or-password confirm
-    (POST /chat/proposals/{id}/confirm) instead."""
+    """Electronic signing is reserved for what the bank formally issues TO a
+    user - see esign_service.create_sign_request's docstring. A self-uploaded
+    document has no counterparty and nothing was agreed to, so it's rejected
+    at sign-request creation itself, before OTP/Face ever enter the picture
+    (esign_service._require_admin_issued_sign_proposal is a second,
+    defense-in-depth check of the same rule at the signing-code/confirm
+    step, for a proposal that reached that point some other way)."""
     client, _user = authed_client
-    _capture_teams(monkeypatch)
+    _capture_email(monkeypatch)
 
     upload_resp = await client.post(
         "/api/v1/documents/upload",
@@ -294,10 +297,7 @@ async def test_self_uploaded_document_cannot_use_otp_face_path(
         f"/api/v1/esign/documents/{document_id}/sign-requests",
         json={"intent": "Sunt de acord."},
     )
-    proposal_id = sign_request_resp.json()["id"]
-
-    resp = await client.post(f"/api/v1/esign/proposals/{proposal_id}/signing-code")
-    assert resp.status_code == 422, resp.text
+    assert sign_request_resp.status_code == 422, sign_request_resp.text
 
 
 def _pdf_bytes(text: str) -> bytes:

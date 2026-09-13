@@ -28,7 +28,7 @@ from app.core.security import (
     hash_session_token,
     verify_password,
 )
-from app.core.teams import send_teams_message
+from app.core.email import send_otp_email
 from app.modules.auth import service as auth_service
 from app.modules.face_auth import service as face_auth_service
 from app.modules.users.schemas import UserRead
@@ -65,9 +65,11 @@ async def request_device_enrollment(supabase: AsyncClient, user: UserRead) -> No
         }
     ).execute()
 
-    await send_teams_message(
-        f"🔐 Cod verificare dispozitiv BanK pentru {user.email}: **{code}**  \n"
-        f"Valabil {ENROLLMENT_CODE_TTL_MINUTES} minute."
+    await send_otp_email(
+        user.email,
+        "Cod verificare dispozitiv BanK",
+        f"Codul tău de verificare dispozitiv BanK este: **{code}**\n"
+        f"Valabil {ENROLLMENT_CODE_TTL_MINUTES} minute.",
     )
 
     await record_audit_event(

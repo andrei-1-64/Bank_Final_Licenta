@@ -1,10 +1,11 @@
 """POST/GET /api/v1/trusted-devices/* - device-trust enrollment and the
 password-only login path for an already-enrolled browser.
 
-generate_otp_code and send_teams_message are monkeypatched throughout so
+generate_otp_code and send_otp_email are monkeypatched throughout so
 tests never depend on guessing a random 6-digit code or hitting the real
-Teams webhook (TEAMS_WEBHOOK_URL is configured in this environment's
-.env, so an un-stubbed test would otherwise post a real message).
+Gmail SMTP server (GMAIL_SENDER_EMAIL/GMAIL_APP_PASSWORD may be configured
+in this environment's .env, so an un-stubbed test would otherwise send a
+real email).
 """
 
 from httpx import ASGITransport
@@ -14,10 +15,10 @@ DEVICE_COOKIE = "trusted_device_token"
 
 
 def _stub_teams_and_code(monkeypatch, code: str = "123456") -> None:
-    async def _fake_send(text: str) -> bool:
+    async def _fake_send(to_email: str, subject: str, body: str) -> bool:
         return True
 
-    monkeypatch.setattr("app.modules.trusted_devices.service.send_teams_message", _fake_send)
+    monkeypatch.setattr("app.modules.trusted_devices.service.send_otp_email", _fake_send)
     monkeypatch.setattr("app.modules.trusted_devices.service.generate_otp_code", lambda: code)
 
 

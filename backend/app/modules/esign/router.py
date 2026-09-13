@@ -54,7 +54,7 @@ async def request_signing_code(
 ) -> None:
     """Only meaningful for a sign_document proposal whose document was
     issued by an admin (see esign_service._require_admin_issued_sign_
-    proposal) - anything else 422s. Delivers the code out-of-band (Teams);
+    proposal) - anything else 422s. Delivers the code out-of-band (email);
     204 either way, so the response never confirms whether a code exists."""
     await esign_service.request_signing_code(supabase, user, proposal_id)
 

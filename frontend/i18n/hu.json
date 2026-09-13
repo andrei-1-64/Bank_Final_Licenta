@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Jelszó visszaállítása - BanK",
     "heading": "Jelszó visszaállítása",
-    "request_hint": "Add meg a fiókod e-mail-címét. Ha létezik, 6 számjegyű kódot kapsz Teamsen.",
-    "code_sent": "Ha a cím létezik, a kódot elküldtük Teamsen.",
+    "request_hint": "Add meg a fiókod e-mail-címét. Ha létezik, 6 számjegyű kódot kapsz e-mailben.",
+    "code_sent": "Ha a cím létezik, a kódot elküldtük e-mailben.",
     "code_label": "Kód (6 számjegy)",
     "resend_prompt": "Nem kaptad meg a kódot?",
     "resend": "Újraküldés",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Eszköz ellenőrzése - BanK",
     "heading": "Eszköz felismerése",
-    "description": "6 számjegyű kódot küldtünk Teamsen. Add meg, hogy legközelebb csak a jelszavaddal jelentkezhess be.",
+    "description": "6 számjegyű kódot küldtünk e-mailben. Add meg, hogy legközelebb csak a jelszavaddal jelentkezhess be.",
     "confirm": "Eszköz megerősítése",
     "later": "Később"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Hiba történt az aláírási kérés létrehozásakor.",
     "sign_intent_official": "Elolvastam és elfogadom a(z) „{filename}” hivatalos dokumentum tartalmát.",
     "sending_code": "Aláírási kód küldése...",
-    "code_sent": "Kód elküldve ehhez: „{filename}”. Nézd meg a Teamsben.",
+    "code_sent": "Kód elküldve ehhez: „{filename}”. Nézd meg az e-mailjeidet.",
     "code_send_error": "A kódot nem sikerült elküldeni.",
     "face_reason": "Hivatalos dokumentum aláírása - Face ID azonosítás",
     "sign_success": "A dokumentumot sikeresen aláírtad!",

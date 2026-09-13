@@ -25,7 +25,7 @@ from supabase import AsyncClient
 
 from app.core.exceptions import InvalidSigningCodeError, NotFoundError, ValidationError
 from app.core.security import generate_otp_code, hash_otp_code
-from app.core.teams import send_teams_message
+from app.core.email import send_otp_email
 from app.modules.chat import proposals_service
 from app.modules.documents import service as documents_service
 from app.modules.esign import keys
@@ -301,9 +301,11 @@ async def request_signing_code(supabase: AsyncClient, user: UserRead, proposal_i
         .execute()
     )
 
-    await send_teams_message(
-        f"🔐 Cod semnare document BanK pentru {user.email}: **{code}**  \n"
-        f"Valabil {SIGNING_CODE_TTL_MINUTES} minute."
+    await send_otp_email(
+        user.email,
+        "Cod semnare document BanK",
+        f"Codul tău de semnare document BanK este: **{code}**\n"
+        f"Valabil {SIGNING_CODE_TTL_MINUTES} minute.",
     )
 
 

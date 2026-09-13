@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Şifreyi sıfırla - BanK",
     "heading": "Şifreyi sıfırla",
-    "request_hint": "Hesabınızın e-posta adresini girin. Varsa Teams üzerinden 6 haneli kod alırsınız.",
-    "code_sent": "Adres mevcutsa Teams üzerinden bir kod gönderildi.",
+    "request_hint": "Hesabınızın e-posta adresini girin. Varsa e-posta yoluyla 6 haneli kod alırsınız.",
+    "code_sent": "Adres mevcutsa e-posta yoluyla bir kod gönderildi.",
     "code_label": "Kod (6 hane)",
     "resend_prompt": "Kodu almadınız mı?",
     "resend": "Tekrar gönder",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Cihazı doğrula - BanK",
     "heading": "Bu cihazı tanı",
-    "description": "Teams üzerinden 6 haneli bir kod gönderdik. Bir dahaki sefere yalnızca şifrenizle giriş yapmak için kodu girin.",
+    "description": "E-posta yoluyla 6 haneli bir kod gönderdik. Bir dahaki sefere yalnızca şifrenizle giriş yapmak için kodu girin.",
     "confirm": "Cihazı onayla",
     "later": "Daha sonra"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "İmza talebi oluşturulurken hata oluştu.",
     "sign_intent_official": "«{filename}» resmi belgesinin içeriğini okudum ve kabul ediyorum.",
     "sending_code": "İmza kodu gönderiliyor...",
-    "code_sent": "«{filename}» için kod gönderildi. Teams'i kontrol et.",
+    "code_sent": "«{filename}» için kod gönderildi. E-postanı kontrol et.",
     "code_send_error": "Kod gönderilemedi.",
     "face_reason": "Resmi belge imzalama - Face ID doğrulaması",
     "sign_success": "Belge başarıyla imzalandı!",

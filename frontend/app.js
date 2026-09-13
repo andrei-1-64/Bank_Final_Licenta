@@ -1766,7 +1766,7 @@ function showAdminDocSignError(message) {
 }
 
 /** Requests a fresh OTP (POST .../signing-code, 204, delivered out-of-band
- * via Teams - same convention as password-reset codes) and shows the modal
+ * via email - same convention as password-reset codes) and shows the modal
  * for entering it. Re-callable as "Retrimite codul" without closing the
  * modal. */
 async function requestAdminDocSignCode() {
@@ -1776,7 +1776,7 @@ async function requestAdminDocSignCode() {
     statusEl.textContent = t('esign.sending_code', 'Se trimite codul de semnare...');
     try {
         await apiFetch(`/esign/proposals/${adminDocSignProposalId}/signing-code`, { method: 'POST' });
-        statusEl.textContent = t('esign.code_sent', 'Cod trimis pentru „{filename}”. Verifică Teams.', { filename: adminDocSignFilename });
+        statusEl.textContent = t('esign.code_sent', 'Cod trimis pentru „{filename}”. Verifică emailul.', { filename: adminDocSignFilename });
     } catch (err) {
         statusEl.textContent = '';
         showAdminDocSignError(err.message || t('esign.code_send_error', 'Codul nu a putut fi trimis.'));

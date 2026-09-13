@@ -215,7 +215,7 @@ async def _pay_referral_reward(supabase: AsyncClient, reward: dict, payout_accou
     sweep at the end of open_account) and raises an in-app notification for
     them (see modules/notifications - the bell icon in the header). Unlike
     the password-reset OTP, this happens to an already-logged-in user, so it
-    belongs in-app rather than on Teams. grant_opening_balance is idempotent
+    belongs in-app rather than by email. grant_opening_balance is idempotent
     on idempotency_key, so this is safe to call again for a reward that's
     already `paid` - it'll just replay the existing journal entry rather
     than double-crediting."""

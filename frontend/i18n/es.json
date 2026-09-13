@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Restablecer contraseña - BanK",
     "heading": "Restablecer contraseña",
-    "request_hint": "Introduce el correo de tu cuenta. Si existe, recibirás un código de 6 dígitos por Teams.",
-    "code_sent": "Si la dirección existe, se envió un código por Teams.",
+    "request_hint": "Introduce el correo de tu cuenta. Si existe, recibirás un código de 6 dígitos por correo electrónico.",
+    "code_sent": "Si la dirección existe, se envió un código por correo electrónico.",
     "code_label": "Código (6 dígitos)",
     "resend_prompt": "¿No recibiste el código?",
     "resend": "Enviar de nuevo",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Verificar dispositivo - BanK",
     "heading": "Reconocer este dispositivo",
-    "description": "Te enviamos un código de 6 dígitos por Teams. Introdúcelo para iniciar sesión la próxima vez solo con tu contraseña.",
+    "description": "Te enviamos un código de 6 dígitos por correo electrónico. Introdúcelo para iniciar sesión la próxima vez solo con tu contraseña.",
     "confirm": "Confirmar dispositivo",
     "later": "Más tarde"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Error al crear la solicitud de firma.",
     "sign_intent_official": "He leído y acepto el contenido del documento oficial «{filename}».",
     "sending_code": "Enviando código de firma...",
-    "code_sent": "Código enviado para «{filename}». Revisa Teams.",
+    "code_sent": "Código enviado para «{filename}». Revisa tu correo.",
     "code_send_error": "No se pudo enviar el código.",
     "face_reason": "Firma de documento oficial - verificación con Face ID",
     "sign_success": "¡El documento se firmó correctamente!",

@@ -217,8 +217,8 @@
   "recovery": {
     "title": "Resetare parolă - BanK",
     "heading": "Resetare parolă",
-    "request_hint": "Introdu adresa de email a contului. Dacă există, primești un cod de 6 cifre prin Teams.",
-    "code_sent": "Dacă adresa există, un cod a fost trimis prin Teams.",
+    "request_hint": "Introdu adresa de email a contului. Dacă există, primești un cod de 6 cifre pe email.",
+    "code_sent": "Dacă adresa există, un cod a fost trimis pe email.",
     "code_label": "Cod (6 cifre)",
     "resend_prompt": "Nu a venit codul?",
     "resend": "Trimite din nou",
@@ -231,7 +231,7 @@
   "enrollment": {
     "title": "Verifică dispozitivul - BanK",
     "heading": "Recunoaște acest dispozitiv",
-    "description": "Ți-am trimis un cod de 6 cifre prin Teams. Introdu-l ca data viitoare să poți intra de pe acest calculator doar cu parola, fără să retastezi emailul.",
+    "description": "Ți-am trimis un cod de 6 cifre pe email. Introdu-l ca data viitoare să poți intra de pe acest calculator doar cu parola, fără să retastezi emailul.",
     "confirm": "Confirmă dispozitivul",
     "later": "Mai târziu"
   },
@@ -430,7 +430,7 @@
     "sign_request_error": "Eroare la crearea cererii de semnătură.",
     "sign_intent_official": "Am citit și sunt de acord cu conținutul documentului oficial „{filename}”.",
     "sending_code": "Se trimite codul de semnare...",
-    "code_sent": "Cod trimis pentru „{filename}”. Verifică Teams.",
+    "code_sent": "Cod trimis pentru „{filename}”. Verifică emailul.",
     "code_send_error": "Codul nu a putut fi trimis.",
     "face_reason": "Semnare document oficial - identificare prin Face ID",
     "sign_success": "Documentul a fost semnat cu succes!",

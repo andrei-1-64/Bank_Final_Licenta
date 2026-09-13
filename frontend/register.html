@@ -414,7 +414,7 @@
          * (defense in depth, e.g. if the email changed after the early
          * check). Offers a way into the already-built forgot-password flow
          * instead of a dead-end error - reuses that page's own 3-step
-         * OTP-over-Teams flow rather than reimplementing it here. */
+         * OTP-over-email flow rather than reimplementing it here. */
         function accountConflictCardHTML(reason, email) {
             return `
                 <div class="action-proposal">

@@ -29,7 +29,7 @@ from app.core.security import (
     hash_session_token,
     verify_password,
 )
-from app.core.teams import send_teams_message
+from app.core.email import send_otp_email
 from app.modules.auth.schemas import (
     ChangePasswordRequest,
     LoginRequest,
@@ -277,9 +277,10 @@ async def request_password_reset(supabase: AsyncClient, email: str) -> None:
         }
     ).execute()
 
-    await send_teams_message(
-        f"🔐 Cod resetare parolă BanK pentru {email}: **{code}**  \n"
-        f"Valabil {RESET_CODE_TTL_MINUTES} minute."
+    await send_otp_email(
+        email,
+        "Cod resetare parolă BanK",
+        f"Codul tău de resetare parolă BanK este: {code}\nValabil {RESET_CODE_TTL_MINUTES} minute.",
     )
 
     await record_audit_event(
