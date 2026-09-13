@@ -159,7 +159,9 @@ async def test_insights_hands_off_to_banking_which_proposes_cancel_card(
     body = resp.json()
 
     # 1. InsightsAgent really did find the recurring charge - not a stub.
-    recurring = _tool_payload(provider, 0, "detect_recurring_payments")
+    # (call 0 is the prompt BEFORE the tool ran; its result only appears in
+    # the history for call 1, the prompt that led to the handoff call.)
+    recurring = _tool_payload(provider, 1, "detect_recurring_payments")
     assert recurring["ok"] is True
     names = [p["name"] for p in recurring["result"]["recurring_payments"]]
     assert RECURRING_MERCHANT in names
@@ -407,10 +409,15 @@ async def test_a_handoff_to_documents_is_refused_over_http(
 async def test_statement_mode_blocks_the_handoff_over_http(
     authed_client, scripted_provider, supabase
 ):
-    """With a statement active the whole turn goes to DocumentAgent anyway (the
-    context-first override), so the banking gate is never even the thing that
-    stops it - belt and braces, and this proves the outer one still holds after
-    Step 15 restructured dispatch."""
+    """`route()`'s context-first check only BIASES towards DocumentAgent since
+    the routing-fix pass (see Orchestrator.route's docstring) - DEMO_MESSAGE
+    matches InsightsAgent's own `recurent` keyword rule, so with a statement
+    active the turn still opens with InsightsAgent, same as without one. What
+    a statement DOES still guarantee is the belt-and-braces part: if
+    InsightsAgent tries to hand off to BankingAgent anyway, the statement-mode
+    gate in `_handoff_allowed` refuses it, because insights tool results
+    under an active statement are statement_rows ids, not ledger references
+    BankingAgent could safely act on."""
     client, user = authed_client
     await _open_account(client)
 
@@ -424,7 +431,7 @@ async def test_statement_mode_blocks_the_handoff_over_http(
         .execute()
     ).data[0]
 
-    scripted_provider(ModelResponse(text="Extrasul conține..."))
+    provider = scripted_provider(ModelResponse(tool_calls=[_handoff_call("banking")]))
 
     body = (
         await client.post(
@@ -433,4 +440,10 @@ async def test_statement_mode_blocks_the_handoff_over_http(
         )
     ).json()
 
-    assert [hop["agent_name"] for hop in body["routing_chain"]] == ["documents"]
+    assert [hop["agent_name"] for hop in body["routing_chain"]] == ["insights"]
+    # Exactly one provider call: the refused handoff ends the chain right
+    # there, and BankingAgent is never reached to ask the model anything.
+    assert provider.call_count == 1
+    # The source agent had written nothing when it asked, so the user gets
+    # the refusal fallback rather than an empty bubble.
+    assert body["reply"] == HANDOFF_REFUSED_REPLY

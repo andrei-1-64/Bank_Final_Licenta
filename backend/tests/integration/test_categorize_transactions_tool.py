@@ -180,7 +180,12 @@ async def test_llm_classifier_improves_an_otherwise_uncategorized_merchant(
 ):
     user = await user_factory()
     account = await account_factory(user)
-    await _seed_entry(supabase, account["id"], 5_000, description="Totally Novel Merchant Xyz")
+    # merchant_category_cache is global and clean_db never wipes it (see
+    # test_llm_classification_is_cached_and_not_repeated_for_the_same_merchant
+    # below) - a fixed name here would collide with its own cache entry from
+    # a previous run against the same Supabase project.
+    description = f"Totally Novel Merchant Xyz {uuid.uuid4()}"
+    await _seed_entry(supabase, account["id"], 5_000, description=description)
 
     context = await build_context_for_user(user, supabase)
     provider = _EchoClassifierProvider("Electronice")
