@@ -29,6 +29,11 @@ services:
       - ./backend/app:/app/app
       - ./backend/tests:/app/tests
       - ./backend/scripts:/app/scripts
+      # Source docs for scripts/ingest_knowledge_base.py (the docs/RAG
+      # agent) - the Dockerfile never COPYs this directory, so without this
+      # mount the container sees an empty knowledge_base/ regardless of
+      # what's on disk.
+      - ./backend/knowledge_base:/app/knowledge_base
     depends_on:
       vision:
         condition: service_healthy

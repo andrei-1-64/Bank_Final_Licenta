@@ -9,8 +9,36 @@ from app.ai.agents.tool_loop import ToolLoopAgent
 from app.ai.routing import RoutingRule
 
 #: Keyword STEMS - see banking_agent.py's routing-rule comment for the
-#: matching rules (prefix match, diacritics folded).
-#:
+#: matching rules (prefix match, diacritics folded). Exported (not just used
+#: below) so an EARLIER-registered agent whose own stems collide with a fee
+#: question can back off via `excludes_any_of=DOCS_FEE_MARKERS` - the same
+#: shape as banking_agent.py importing PLANNING_FORWARD_MARKERS. Registration
+#: order alone (`ai/service.py`) only gives DocsAgent first refusal against
+#: agents registered AFTER it (Banking, Planning); InsightsAgent is
+#: registered BEFORE it, so its own broad stems (e.g. "anual" in
+#: insights_time_slice) win by default despite the comment below's original
+#: assumption - see insights_agent.py's use of this constant, added after
+#: "ce dobandă anuală am la un depozit de 12 luni" was swallowed by
+#: insights_time_slice's bare "anual" instead of reaching docs_fees.
+DOCS_FEE_MARKERS = frozenset(
+    {
+        "comision",
+        # Romanian pluralizes irregularly here (comisiON -> comisiOANE), so
+        # the singular stem alone misses it - found by asking "ce comisioane
+        # are BanK" and watching it fall through to Banking's "transfer"
+        # instead, for an ungrounded answer to exactly the kind of question
+        # this agent exists to ground.
+        "comisioane",
+        "tarif",
+        "cost",
+        "taxa",
+        "doband",
+        "dobind",
+        "fee",
+        "interest rate",
+    }
+)
+
 #: Deliberately excludes stems Banking already owns ("cont", "plat", "card",
 #: "econom" etc.) even where a real question might use them ("ce comision are
 #: contul curent") - the stems below (comision, tarif, ...) already claim
@@ -20,18 +48,7 @@ from app.ai.routing import RoutingRule
 DOCS_ROUTING_RULES = (
     RoutingRule(
         name="docs_fees",
-        keywords=frozenset(
-            {
-                "comision",
-                "tarif",
-                "cost",
-                "taxa",
-                "doband",
-                "dobind",
-                "fee",
-                "interest rate",
-            }
-        ),
+        keywords=DOCS_FEE_MARKERS,
     ),
     RoutingRule(
         name="docs_products",

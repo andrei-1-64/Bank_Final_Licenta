@@ -23,6 +23,7 @@ from __future__ import annotations
 import logging
 
 from app.ai.agents.currency_rules import CURRENCY_ROUTING_RULES
+from app.ai.agents.docs_agent import DOCS_FEE_MARKERS
 from app.ai.agents.scope_guardrail import OFF_TOPIC_GUARDRAIL
 from app.ai.agents.tool_loop import ToolLoopAgent
 from app.ai.routing import RoutingRule
@@ -122,6 +123,12 @@ INSIGHTS_ROUTING_RULES = (
                 "anual",
             }
         ),
+        # This agent is registered BEFORE DocsAgent, so a bare "anual" would
+        # otherwise win a question that is actually about a product's fixed
+        # rate ("ce dobandă anuală am la un depozit de 12 luni") before
+        # DocsAgent's own docs_fees rule ever gets a look - found live, see
+        # DOCS_FEE_MARKERS's docstring for the exact message that surfaced it.
+        excludes_any_of=DOCS_FEE_MARKERS,
     ),
 )
 
