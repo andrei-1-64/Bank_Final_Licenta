@@ -140,9 +140,70 @@ before/after. This is the kind of thing I want more of in this journal —
 specific enough that future-me (or the thesis) can quote the actual change
 instead of a vague "improved security."
 
+## 2026-09-14
+
+Long one. Started by confirming what 09-13 left open: the Supabase project
+really is gone, not paused — nslookup against 1.1.1.1 directly (bypassing
+any local DNS) came back NXDOMAIN. Created two fresh projects, dev and
+test, ran every migration file through the SQL editor, and for the first
+time in days actually clicked through a working register → login → open
+account flow against real infrastructure.
+
+With a real database under it, I finally put the AI layer through its
+paces against the *real* Azure model instead of the scripted test double —
+asked it to cancel a card, watched it come back with a pending proposal
+instead of touching anything, checked the card was still `active`
+afterward. Did the same thing through an actual Insights → Banking handoff,
+not just the unit-tested version of one. Held both times. That's the
+sentence I want in the Testing chapter: the propose-only boundary survives
+contact with a real model, not just a scripted one.
+
+Then found two things that were quietly broken the whole time. First:
+`docker-compose.yml` never mounted `backend/knowledge_base/` into the
+container — the docs/RAG agent has been running with zero ingested
+documents since it was built. Fixed the mount, ingested the one real
+product/fees doc (75 chunks), and immediately the fix surfaced two routing
+bugs that only mattered once there was something real to ground against:
+"comisioane" (plural) didn't match the "comision" keyword stem — Romanian
+pluralizes irregularly there — so a fees question fell through to Banking
+and got a confidently *invented* answer instead of a grounded one. And a
+question about deposit interest got swallowed by Insights' generic "anual"
+before Docs' "dobândă" stem ever got a look, because Insights is registered
+first. Fixed both — the interest-rate question now returns the exact
+figure from the real document instead of a non-answer. This is a good
+concrete example for the Related Work section on why keyword-based routing
+without a fallback is fragile in a way structural constraints (like the
+propose-only rule) aren't.
+
+Also spent a chunk of the day just closing loose ends: added a real
+`max_completion_tokens` cap after noticing multi-hop replies repeated
+themselves — first try (1500) was too tight and actually broke a real turn
+with an empty completion, gpt-5-mini apparently burns the same budget on
+invisible reasoning tokens before writing anything visible. 4096 fixed it
+and, as a bonus, made replies noticeably tighter. Cleaned up `.env` of a
+pile of dead variables from an unrelated course template that had nothing
+to do with this project. Created an actual admin account (there wasn't
+one). Got a real Gmail app password and watched an actual OTP email land
+in a real inbox for the first time — no more "trust me, it would have
+sent."
+
+Last thing, and maybe the best one for the Implementation chapter: replaced
+the purely keyword-based spending categorizer with a real Merchant Category
+Code layer — the same mechanism an actual card issuer uses, not something I
+made up. Curated real, published MCCs for the known merchants (5411
+grocery, 5541 fuel, 5815 digital media, and so on), matched longest-stem
+first, and only fall through to the old keyword map for anything without a
+curated code. Asked the assistant afterward which MCCs it used and it
+correctly listed real codes for categories that had them and said "fără
+MCC" for the two that came from the fallback instead of making something
+up. That's a genuinely nice thesis paragraph: not just "the AI doesn't
+invent numbers" as a policy statement, but a category-by-category
+demonstration of it holding.
+
 ---
 
-**Next up:** get the Supabase project reachable again, actually exercise
-the new email OTP flow end to end (trigger a reset, watch the email land),
-then start turning the last few weeks of entries above into the
-Implementation chapter draft.
+**Next up:** the one thing I still can't verify from here — face
+enrollment needs a real browser + webcam blink sequence, can't fake that
+with a static test image. Do that myself, then I think the app is finally
+in a state where I stop finding infrastructure gaps and can start actually
+writing the Implementation and Testing chapters from everything above.
