@@ -19,6 +19,20 @@ from app.config import Settings, get_settings
 
 logger = logging.getLogger(__name__)
 
+# Hard ceiling on one model turn (reply text OR tool-call JSON, never both at
+# once - see complete() below). Every agent's own prompt already asks for a
+# short reply ("scurt", "3-5 propoziții"), but a prompt is a request, not a
+# guarantee - this is the actual backstop against a runaway reply, not a
+# tight leash: for the gpt-5 family this budget is shared with the model's
+# own internal reasoning tokens, which are invisible here but paid for from
+# the same pool. 1500 was tried first and confirmed too tight - a real
+# InsightsAgent turn reasoning over a full detect_recurring_payments result
+# before deciding to hand off burned the whole budget on reasoning and came
+# back with finish_reason="length" and empty content. This value has margin
+# above that observed failure; the guard right after the API call below is
+# what actually protects the user if a heavier turn ever exhausts it anyway.
+_MAX_COMPLETION_TOKENS = 4096
+
 
 def _to_wire(message: Message) -> dict[str, Any]:
     """Translate our Message into the SDK's chat-completions shape."""
@@ -77,14 +91,14 @@ class AzureOpenAIProvider(ModelProvider):
             # On Azure, `model` is the deployment name, not a base model string.
             "model": self._config.deployment,
             "messages": [_to_wire(message) for message in messages],
+            "max_completion_tokens": _MAX_COMPLETION_TOKENS,
         }
         if tool_specs:
             request["tools"] = list(tool_specs)
             request["tool_choice"] = "auto"
 
-        # Deliberately no `temperature` / `max_tokens`: the gpt-5 family rejects
-        # non-default temperature and renamed the cap to `max_completion_tokens`.
-        # Omitting both keeps this provider valid across deployments.
+        # Deliberately no `temperature`: the gpt-5 family rejects non-default
+        # values, so omitting it keeps this provider valid across deployments.
         try:
             completion = self._client.chat.completions.create(**request)
         except OpenAIError as exc:  # network, auth, quota, bad deployment, ...
@@ -95,6 +109,20 @@ class AzureOpenAIProvider(ModelProvider):
 
         choice = completion.choices[0].message
         raw_calls = getattr(choice, "tool_calls", None) or []
+
+        if not raw_calls and not (choice.content or "").strip():
+            # No tool call AND no text: either a genuinely empty completion,
+            # or - the known gpt-5-mini failure mode - _MAX_COMPLETION_TOKENS
+            # got spent entirely on invisible reasoning tokens before any
+            # visible output. Either way, an empty reply is never routed to
+            # the user as if it were a real answer; the caller's existing
+            # ProviderError handling (chat/router.py -> AIProviderError) turns
+            # this into a proper "try again" response instead of a blank
+            # bubble.
+            finish_reason = completion.choices[0].finish_reason
+            raise ProviderError(
+                f"Azure OpenAI returned an empty completion (finish_reason={finish_reason!r})"
+            )
 
         tool_calls: list[ToolCall] = []
         for raw in raw_calls:
