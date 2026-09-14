@@ -83,14 +83,43 @@ gets raw database access. This is a good case study for an "LLM agents in
 regulated domains" related-work section.
 
 **Identity & security.** Session-cookie auth, Face ID login (DIY, demo-grade
-— no liveness detection, a photo of a photo passes), ID-card and IBAN OCR
-onboarding via the vision microservice, trusted devices, OTP-gated
-step-up auth for e-Sign (Ed25519 detached signatures) on admin-issued
-documents. **OTP delivery was migrated from a Microsoft Teams webhook to
-real Gmail SMTP email** — see the 2026-09-13 entry in `daily-notes.md` for
-the concrete "before this it wasn't really reaching a user" motivation,
-which is worth a sentence in the thesis as an example of hardening a demo
-convention into something closer to production behaviour.
+— no liveness detection for a static photo, though enrollment does require
+a real multi-frame blink sequence from the browser, so a single still image
+cannot enroll), ID-card and IBAN OCR onboarding via the vision microservice,
+trusted devices, OTP-gated step-up auth for e-Sign (Ed25519 detached
+signatures) on admin-issued documents. **OTP delivery runs over real Gmail
+SMTP**, not the Microsoft Teams webhook the demo originally shipped with —
+see the 2026-09-13 and 2026-09-14 entries in `daily-notes.md`; delivery has
+been verified end to end with a real email landing in a real inbox, not
+just a 204 response.
+
+**Spending categorization uses real Merchant Category Codes.** The
+insights layer classifies a transaction by first checking whether its
+merchant matches a curated table of real, published card-network MCCs
+(ISO 18245) — the same mechanism an actual card issuer uses — before
+falling back to keyword matching and then a cached few-shot LLM
+classifier for anything neither layer recognizes. Each category the tool
+returns carries the real MCC(s) behind it when one applies, and the AI is
+instructed to cite them rather than ever inventing one. Good material for
+both the Implementation chapter (a concrete "we mirrored the real-world
+mechanism instead of approximating it" decision) and Testing (verified
+live: asked which MCCs were used, got real codes back for known merchants
+and an honest "no MCC" for the two categories that came from the
+fallback).
+
+**The AI routing layer is keyword-based and was found to be fragile in
+exactly the way that implies.** Two real bugs surfaced only once the
+docs/RAG knowledge base actually had content to ground answers in
+(2026-09-14): a plural Romanian word ("comisioane") didn't match its own
+singular keyword stem and fell through to the wrong agent for a confidently
+-worded but ungrounded answer; a generic time word ("anual") pre-empted a
+more specific stem before the right agent ever saw the message, because of
+registration order. Both are fixed, but the *pattern* — deterministic
+keyword rules are simple and auditable, but silently miss inflected forms
+and interact by registration order rather than specificity — is worth its
+own paragraph in Related Work or Discussion: it is a genuine limitation of
+the chosen approach, found empirically rather than assumed, with a
+documented before/after fix for each case.
 
 **Known limitations — state these plainly in the Results/Discussion
 chapter, they are a strength (self-awareness) not a weakness:**
@@ -187,7 +216,33 @@ screenshots, and results.
 > each is a bounded extension of a design that was built to accommodate them
 > from the start.
 
-## 4. How to keep this guide current
+## 4. If the author gives you an example thesis
+
+The author may separately upload a real, previously-written thesis (their
+own earlier draft, a friend's, or a university template) as a structural
+example. If one appears in this conversation:
+
+- **Use it for FORM, never for CONTENT.** Chapter numbering and naming
+  conventions, front-matter (title page, declaration of originality,
+  abstract placement, table of contents depth), citation style, figure/table
+  captioning conventions, section length and register, how formal the
+  academic voice runs at that specific institution — all fair game to
+  match.
+- **Never pull facts, findings, or claims from it into BanK's thesis.** It
+  describes a different project. A number, a technology choice, a
+  conclusion from that document must never appear in this one, even
+  reworded — that isn't a style choice, it's introducing content from
+  someone else's work into the author's own thesis, which is exactly the
+  kind of thing an originality/plagiarism check exists to catch. If a
+  structural choice in the example only makes sense alongside content
+  specific to that other project, don't carry the choice over either — copy
+  the shape only where the shape stands on its own.
+- **When in doubt, ask which chapter of the example is meant to guide which
+  chapter of this one** — a template thesis in a different sub-field (e.g.
+  a hardware or theoretical thesis) may not map chapter-for-chapter onto a
+  software-engineering one, and forcing the fit is worse than asking.
+
+## 5. How to keep this guide current
 
 The canonical copies of this guide and the journal live in the repository:
 
