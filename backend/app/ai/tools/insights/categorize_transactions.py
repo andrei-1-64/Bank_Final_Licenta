@@ -1,23 +1,33 @@
 """Spending categories from merchant name / description patterns.
 
-Two layers, cheapest first:
+Three layers, cheapest and most authoritative first:
 
-1. A fixed keyword map - deterministic, explainable, free. Matching a new
-   merchant is a `dict` edit, not a retrain. This alone is everything
+1. A merchant -> real-world Merchant Category Code (MCC) -> category lookup
+   (MERCHANT_MCC / MCC_CATEGORY below). This is what an actual card issuer's
+   own statement categorization runs on: MCC is a 4-digit code assigned by
+   the card network per merchant terminal (ISO 18245), and issuers keep
+   exactly this kind of MCC-range-to-category table rather than parsing
+   merchant name strings. Only merchants whose real-world MCC is
+   well-established and documented are listed - narrower than the keyword
+   map below on purpose.
+2. A fixed keyword map - deterministic, explainable, free - for everything
+   layer 1 doesn't cover: generic terms with no single owning merchant
+   ("restaurant", "farmacie", "chirie") and anything not curated into
+   MERCHANT_MCC yet. Matching a new merchant is a `dict` edit, not a
+   retrain. Together, layers 1+2 are everything
    GET /insights/spending-by-category (the dashboard widget) ever uses -
    that endpoint must stay LLM-free (see insights/router.py's docstring),
-   so it only ever reads the keyword map plus whatever's already cached
-   below; it never calls the model itself.
-2. For whatever the keywords miss (which would otherwise all land in
-   "Altele"), a few-shot LLM classifier - see FEW_SHOT_EXAMPLES below - but
-   ONLY when this module is given a `provider` to call, which today means
-   only the chat tool at the bottom of this file. The chat tool already
-   pays LLM latency for the user's question anyway, so classifying its
-   cache-miss merchants there is free in comparison; the dashboard read
-   path never pays it. Results are cached in merchant_category_cache
-   (global, not per-user - a merchant's category doesn't depend on who
-   paid them), so the very next dashboard load - or the next chat question,
-   by any user - sees the improved category without a second LLM call.
+   so it never calls the model itself.
+3. For whatever both miss (which would otherwise all land in "Altele"), a
+   few-shot LLM classifier - see FEW_SHOT_EXAMPLES below - but ONLY when
+   this module is given a `provider` to call, which today means only the
+   chat tool at the bottom of this file. The chat tool already pays LLM
+   latency for the user's question anyway, so classifying its cache-miss
+   merchants there is free in comparison; the dashboard read path never
+   pays it. Results are cached in merchant_category_cache (global, not
+   per-user - a merchant's category doesn't depend on who paid them), so
+   the very next dashboard load - or the next chat question, by any user -
+   sees the improved category without a second LLM call.
 """
 
 from __future__ import annotations
@@ -40,12 +50,93 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+#: Real, publicly-documented card-network Merchant Category Codes, mapped to
+#: OUR category taxonomy - the same range-to-category grouping a card
+#: issuer's own statement categorization keeps. Deliberately covers only
+#: business TYPES, not specific merchants: MERCHANT_MCC below is what maps a
+#: name to one of these codes.
+MCC_CATEGORY: dict[str, str] = {
+    "4900": "Facturi & Utilități",  # Utilities - Electric, Gas, Water, Sanitary
+    "4814": "Telecomunicații",  # Telecommunication Services
+    "5815": "Divertisment",  # Digital Goods - Media, Books, Movies, Music
+    "5816": "Divertisment",  # Digital Goods - Games
+    "7832": "Divertisment",  # Motion Picture Theaters
+    "7922": "Divertisment",  # Theatrical Producers, Ticket Agencies
+    "5812": "Mâncare & Băutură",  # Eating Places, Restaurants
+    "5814": "Mâncare & Băutură",  # Fast Food Restaurants (its own real code)
+    "5411": "Cumpărături alimentare",  # Grocery Stores, Supermarkets
+    "5541": "Transport / Combustibil",  # Service Stations
+    "4121": "Transport / Combustibil",  # Taxicabs and Limousines
+    "4111": "Transport / Combustibil",  # Transportation - Suburban and Local Commuter
+    "5912": "Sănătate",  # Drug Stores and Pharmacies
+    "8011": "Sănătate",  # Doctors, Physicians
+    "8062": "Sănătate",  # Hospitals
+    "5732": "Electronice",  # Electronics Stores
+    "5651": "Îmbrăcăminte",  # Family Clothing Stores
+    "5655": "Îmbrăcăminte",  # Sports and Riding Apparel Stores
+    "8299": "Educație",  # Schools and Educational Services, NEC
+    "8220": "Educație",  # Colleges, Universities, Professional Schools
+    "5712": "Locuință & Amenajări",  # Furniture, Home Furnishings
+    "5211": "Locuință & Amenajări",  # Lumber and Building Materials Stores
+    "6300": "Asigurări",  # Insurance Sales, Underwriting, Premiums
+}
+
+#: Merchant name STEMS (matched the same way as CATEGORY_KEYWORDS: lowercase
+#: substring of "description reference") -> the MCC a real acquirer would
+#: attach to that merchant's card terminal. Looked up by LONGEST stem first
+#: (see _match_mcc), so "bolt food" (delivery, 5812) is found before the
+#: shorter "bolt" (rideshare, 4121) regardless of dict order - same
+#: specificity concern CATEGORY_KEYWORDS's own comment calls out below.
+MERCHANT_MCC: dict[str, str] = {
+    "enel": "4900", "eon": "4900", "e.on": "4900", "electrica": "4900",
+    "engie": "4900", "distrigaz": "4900", "apa nova": "4900",
+    "hidroelectrica": "4900", "restart energy": "4900", "premier energy": "4900",
+    "vodafone": "4814", "orange": "4814", "digi": "4814", "upc": "4814", "telekom": "4814",
+    "netflix": "5815", "hbo": "5815", "disney": "5815", "spotify": "5815", "twitch": "5815",
+    "steam": "5816", "cinema": "7832", "eventim": "7922", "bilete": "7922", "teatru": "7922",
+    "starbucks": "5812", "cafea": "5812", "restaurant": "5812",
+    "mcdonald": "5814", "kfc": "5814",
+    "glovo": "5812", "tazz": "5812", "foodpanda": "5812", "bolt food": "5812",
+    "mega image": "5411", "carrefour": "5411", "lidl": "5411", "kaufland": "5411",
+    "penny": "5411", "profi": "5411", "auchan": "5411",
+    "omv": "5541", "petrom": "5541", "mol": "5541", "rompetrol": "5541",
+    "uber": "4121", "bolt": "4121", "taxi": "4121",
+    "cfr": "4111", "ratb": "4111", "stb": "4111",
+    "catena": "5912", "sensiblu": "5912", "dona": "5912", "farmacie": "5912",
+    "clinica": "8011", "reginamaria": "8011", "medlife": "8011", "spital": "8062",
+    "emag": "5732", "e-mag": "5732", "altex": "5732", "pcgarage": "5732", "media galaxy": "5732",
+    "zara": "5651", "h&m": "5651", "bershka": "5651", "pull&bear": "5651",
+    "decathlon": "5655",
+    "udemy": "8299", "coursera": "8299", "scoala": "8299", "școala": "8299",
+    "universitate": "8220",
+    "ikea": "5712", "dedeman": "5211", "leroy merlin": "5211", "hornbach": "5211",
+    "allianz": "6300", "groupama": "6300", "generali": "6300", "nn asigurari": "6300",
+}
+#: Longest-first once, at import time - not recomputed per lookup.
+_MERCHANT_MCC_BY_LENGTH: tuple[tuple[str, str], ...] = tuple(
+    sorted(MERCHANT_MCC.items(), key=lambda item: len(item[0]), reverse=True)
+)
+
+
+def _match_mcc(lowered_text: str) -> str | None:
+    """The MCC of the most specific merchant stem found in `lowered_text`,
+    or None if no curated merchant matches - callers fall through to
+    CATEGORY_KEYWORDS in that case, exactly as if this layer didn't exist."""
+    for stem, mcc in _MERCHANT_MCC_BY_LENGTH:
+        if stem in lowered_text:
+            return mcc
+    return None
+
+
 #: category -> keywords, matched case-insensitively as a substring of
 #: "description reference". Order matters only in that the FIRST category
 #: whose keywords match wins - keep more specific categories earlier if two
 #: lists could ever overlap on the same merchant (e.g. "bolt food" must be
 #: checked before plain "bolt", so a food-delivery order doesn't land in
-#: Transport just because "bolt" is a substring of "bolt food").
+#: Transport just because "bolt" is a substring of "bolt food"). In
+#: practice MERCHANT_MCC above already resolves both "bolt" and "bolt food"
+#: correctly by longest-stem-first before this map is ever consulted, but
+#: the ordering is kept here too for whatever isn't in MERCHANT_MCC.
 CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
     "Facturi & Utilități": (
         "enel", "eon", "e.on", "electrica", "engie", "distrigaz", "apa nova",
@@ -79,12 +170,22 @@ CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
 UNCATEGORIZED = "Altele"
 
 
-def _categorize(text: str) -> str:
+def _categorize(text: str) -> tuple[str, str | None]:
+    """The category for `text`, plus the real MCC that produced it when one
+    did (layer 1) - None when the category came from the keyword map (layer
+    2) or is UNCATEGORIZED, since neither of those correspond to a specific
+    real-world code."""
     lowered = text.lower()
+
+    mcc = _match_mcc(lowered)
+    if mcc is not None:
+        return MCC_CATEGORY[mcc], mcc
+
     for category, keywords in CATEGORY_KEYWORDS.items():
         if any(keyword in lowered for keyword in keywords):
-            return category
-    return UNCATEGORIZED
+            return category, None
+
+    return UNCATEGORIZED, None
 
 
 def _normalize_description(text: str) -> str:
@@ -273,25 +374,32 @@ async def categorize_spending(
     spending = [entry for entry in entries if entry.direction.value == "debit"]
 
     entry_text = {str(entry.id): f"{entry.description} {entry.reference}" for entry in spending}
-    entry_category = {entry_id: _categorize(text) for entry_id, text in entry_text.items()}
+    # (category, mcc) - mcc is None unless layer 1 (MERCHANT_MCC) produced
+    # the category; the keyword map and the LLM fallback below have no real
+    # code to report.
+    entry_result = {entry_id: _categorize(text) for entry_id, text in entry_text.items()}
 
     if provider is not None:
         uncategorized_texts = [
-            text for entry_id, text in entry_text.items() if entry_category[entry_id] == UNCATEGORIZED
+            text
+            for entry_id, text in entry_text.items()
+            if entry_result[entry_id][0] == UNCATEGORIZED
         ]
         improved = await _classify_uncategorized_with_llm(supabase, provider, uncategorized_texts)
         for entry_id, text in entry_text.items():
-            if entry_category[entry_id] == UNCATEGORIZED and text in improved:
-                entry_category[entry_id] = improved[text]
+            if entry_result[entry_id][0] == UNCATEGORIZED and text in improved:
+                entry_result[entry_id] = (improved[text], None)
 
-    buckets: dict[str, dict[str, int]] = {}
+    buckets: dict[str, dict[str, Any]] = {}
     row_categories: dict[str, str] = {}
     for entry in spending:
-        category = entry_category[str(entry.id)]
+        category, mcc = entry_result[str(entry.id)]
         row_categories[str(entry.id)] = category
-        bucket = buckets.setdefault(category, {"count": 0, "total_minor": 0})
+        bucket = buckets.setdefault(category, {"count": 0, "total_minor": 0, "mcc_codes": set()})
         bucket["count"] += 1
         bucket["total_minor"] += entry.amount_minor
+        if mcc is not None:
+            bucket["mcc_codes"].add(mcc)
 
     if context.statement_id is not None:
         # Persist onto the extracted rows - NEVER onto the ledger, see
@@ -315,6 +423,10 @@ async def categorize_spending(
             "percentage": (
                 round(bucket["total_minor"] / total_minor * 100, 2) if total_minor else 0.0
             ),
+            # Empty when every entry in this bucket came from the keyword
+            # map or the LLM fallback rather than a known merchant's real
+            # MCC - never invented to fill the field.
+            "mcc_codes": sorted(bucket["mcc_codes"]),
         }
         for name, bucket in buckets.items()
     ]
@@ -357,10 +469,15 @@ class CategorizeTransactionsTool(Tool):
     name = "categorize_transactions"
     description = (
         "Break the user's spending (debit transactions only) down into "
-        "categories - groceries, subscriptions, transport, etc. - based on "
-        "merchant name patterns. Use this for 'what did I spend on X' or "
-        "'spending by category' questions. Percentages are of total spending "
-        "in the range, not of all transactions."
+        "categories - groceries, subscriptions, transport, etc. - using each "
+        "merchant's real card-network Merchant Category Code (MCC) where the "
+        "merchant is recognized, falling back to name patterns otherwise. Use "
+        "this for 'what did I spend on X' or 'spending by category' questions. "
+        "Each category includes 'mcc_codes': the real MCC(s) behind it, when "
+        "any were used - cite them if the user asks how a category was "
+        "determined, but an empty list is normal and not an error. "
+        "Percentages are of total spending in the range, not of all "
+        "transactions."
     )
     input_schema = CategorizeTransactionsInput
     read_only = True
